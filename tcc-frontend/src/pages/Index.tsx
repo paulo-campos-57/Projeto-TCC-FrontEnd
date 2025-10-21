@@ -10,7 +10,7 @@ export default function Index() {
 
     return (
         <>
-            <div className="w-screen h-screen flex flex-col bg-primaryWhite">
+            <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite">
                 <Header />
                 <div className="flex flex-1">
                     {/* LADO ESQUERDO - LOGIN */}
