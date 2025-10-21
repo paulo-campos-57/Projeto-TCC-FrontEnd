@@ -6,7 +6,22 @@ import NavItem from "../components/NavItem";
 
 export default function Index() {
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const navigate = useNavigate();
+
+    const handleGuestPlay = () => {
+        setShowConfirmPopup(true);
+    };
+
+    const confirmGuestPlay = () => {
+        setShowConfirmPopup(false);
+        // TODO: Criar página para o jogo como convidado
+        navigate('/game');
+    };
+
+    const cancelGuestPlay = () => {
+        setShowConfirmPopup(false);
+    };
 
     return (
         <>
@@ -62,14 +77,42 @@ export default function Index() {
 
                     {/* LADO DIREITO - JOGAR SEM CONTA */}
                     <div className="w-1/2 h-full flex flex-col justify-center items-center text-textBlack font-bold bg-primaryWhite p-8 rounded-none shadow-lg">
-                        <h1 className="text-4xl font-bold">
-                            <NavItem>
-                                Jogar sem conta
-                            </NavItem>
+                        <h1
+                            className="text-4xl font-bold cursor-pointer"
+                            onClick={handleGuestPlay}
+                        >
+                            <NavItem>Jogar sem conta</NavItem>
                         </h1>
                     </div>
                 </div>
             </div>
+
+            {/* POPUP DE CONFIRMAÇÃO */}
+            {showConfirmPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-primaryWhite p-8 rounded-2xl shadow-2xl w-96 text-center font-pressStart">
+                        <h2 className="text-2xl font-bold mb-4 text-textBlack">Tem certeza? ⚠️</h2>
+                        <p className="mb-6 text-gray-700">
+                            Ao jogar sem conta, seu progresso não será salvo,
+                            e você não poderá ter o acompanhamento detalhado das suas estatísticas
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={confirmGuestPlay}
+                                className="bg-vibratingBlue text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-lightGreen hover:text-textBlack transition duration-300 flex-1"
+                            >
+                                Sim, continuar
+                            </button>
+                            <button
+                                onClick={cancelGuestPlay}
+                                className="bg-crimsonRed text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-goldenYellow hover:text-textBlack transition duration-300 flex-1"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
