@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import NavItem from "./NavItem";
 
 export default function Header() {
+    const navigate = useNavigate();
+
     return (
         <div className="w-screen h-16 bg-vibratingBlue text-textBlack flex justify-between items-center fixed top-0 left-0 right-0 z-50">
             <div className="flex justify-evenly items-center w-1/6">
@@ -8,8 +11,12 @@ export default function Header() {
                 <h1 className="text-primaryWhite text-2xl font-bold ml-4">TCC - App</h1>
             </div>
             <div className="flex justify-evenly items-center w-1/6 text-primaryWhite">
-                <NavItem>Início</NavItem>
-                <NavItem>Sobre</NavItem>
+                <span onClick={() => navigate('/')}>
+                    <NavItem>Início</NavItem>
+                </span>
+                <span>
+                    <NavItem>Sobre</NavItem>
+                </span>
             </div>
         </div>
     );

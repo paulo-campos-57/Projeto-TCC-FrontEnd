@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import NavItem from "../components/NavItem";
 
 export default function Index() {
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     return (
         <>
@@ -44,6 +46,17 @@ export default function Index() {
                             <button className="mt-4 bg-vibratingBlue text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-goldenYellow hover:text-textBlack transition duration-300">
                                 Entrar
                             </button>
+
+                            <div className="text-center text-gray-600 mt-4">
+                                Ainda não tem uma conta?
+                                <span
+                                    className="text-crimsonRed font-bold cursor-pointer ml-2"
+                                    onClick={() => navigate('/Cadastro')}>
+                                    <NavItem>
+                                        Cadastre-se
+                                    </NavItem>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
