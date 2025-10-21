@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export default function NavItem({ children }: { children: ReactNode }) {
     return (
-        <div className="relative group text-primaryWhite font-bold cursor-pointer transition-colors duration-300 hover:text-goldenYellow mx-4">
+        <div className="relative group font-bold cursor-pointer transition-colors duration-300 hover:text-goldenYellow mx-4">
             {children}
             <span
                 className="
