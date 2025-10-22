@@ -15,8 +15,7 @@ export default function Index() {
 
     const confirmGuestPlay = () => {
         setShowConfirmPopup(false);
-        // TODO: Criar página para o jogo como convidado
-        navigate('/game');
+        navigate('/JogoConvidado');
     };
 
     const cancelGuestPlay = () => {
