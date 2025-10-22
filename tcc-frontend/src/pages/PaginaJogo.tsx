@@ -11,6 +11,15 @@ L.Icon.Default.mergeOptions({
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+const RECIFE_BOUNDS: L.LatLngBoundsExpression = [
+    [-8.15, -34.97],
+    [-8.00, -34.85],
+];
+
+const fixedZoom = 12;
+const center: L.LatLngExpression = [-8.05, -34.9];
+
+
 export default function PaginaJogo() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,41 +36,50 @@ export default function PaginaJogo() {
         // navigate('/TelaDeJogo', { state: { bairro: bairro.nome, tempoDeJogo } });
     };
 
-    const bairros: { nome: string; pos: L.LatLngExpression; descricao: string; }[] = [
+    const bairros: { nome: string; pos: L.LatLngExpression; descricao: string; focoPreco: string; expectativa: string; }[] = [
         {
             nome: "Casa Forte",
             pos: [-8.0305, -34.9235] as L.LatLngExpression,
             descricao: "Bairro tradicional e arborizado, conhecido por sua tranquilidade e charme histórico.",
+            focoPreco: "Alto",
+            expectativa: "Gourmet e Sofisticada",
         },
         {
             nome: "Recife Antigo",
             pos: [-8.0628, -34.8713] as L.LatLngExpression,
             descricao: "Centro histórico da cidade, repleto de cultura, arte e vida noturna animada.",
+            focoPreco: "Moderado a Alto",
+            expectativa: "Criativa e Rápida",
         },
         {
             nome: "Ibura",
             pos: [-8.1265, -34.9378] as L.LatLngExpression,
             descricao: "Região popular e vibrante, com forte senso de comunidade e vida cotidiana intensa.",
+            focoPreco: "Baixo",
+            expectativa: "Familiar e Econômica",
         },
         {
             nome: "Boa Viagem",
             pos: [-8.1198, -34.9023] as L.LatLngExpression,
             descricao: "Área nobre à beira-mar, famosa por sua praia e comércio movimentado.",
+            focoPreco: "Moderado a Alto",
+            expectativa: "Saudável e Turística",
         },
         {
             nome: "Várzea",
             pos: [-8.0443, -34.9512] as L.LatLngExpression,
             descricao: "Bairro universitário e residencial, com atmosfera calma e verde.",
+            focoPreco: "Moderado",
+            expectativa: "Variada e Estudantil",
         },
         {
             nome: "Areias",
             pos: [-8.0916, -34.9367] as L.LatLngExpression,
             descricao: "Zona urbana popular, com comércio diversificado e moradores acolhedores.",
+            focoPreco: "Moderado a Baixo",
+            expectativa: "Tradicional e Caseira",
         },
     ];
-
-
-    const center: L.LatLngExpression = [-8.05, -34.9];
 
     return (
         <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite relative">
@@ -78,8 +96,19 @@ export default function PaginaJogo() {
                     <div className="w-full max-w-4xl h-[80vh] rounded-2xl overflow-hidden shadow-lg">
                         <MapContainer
                             center={center}
-                            zoom={12}
+                            zoom={fixedZoom}
                             style={{ width: "100%", height: "100%" }}
+
+                            maxBounds={RECIFE_BOUNDS}
+                            maxBoundsViscosity={1.0}
+                            minZoom={fixedZoom}
+                            maxZoom={fixedZoom}
+                            dragging={false}
+                            scrollWheelZoom={false}
+                            doubleClickZoom={false}
+                            touchZoom={false}
+                            boxZoom={false}
+                            keyboard={false}
                         >
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contribuidores'
@@ -93,8 +122,21 @@ export default function PaginaJogo() {
                                         click: () => handleNeighborhoodSelect(bairro),
                                     }}
                                 >
-                                    <Tooltip direction="top" offset={[0, -10]} opacity={1} permanent={false}>
-                                        <span>{bairro.descricao}</span>
+                                    <Tooltip
+                                        direction="top"
+                                        offset={[0, -10]}
+                                        opacity={1}
+                                        permanent={false}
+                                        className="custom-tooltip"
+                                    >
+                                        <div className="flex flex-col justify-center items-center gap-1 font-pressStart text-xs">
+                                            <strong>{bairro.nome}</strong>
+                                            <span>{bairro.descricao}</span>
+                                            <div className="w-full flex justify-between">
+                                                <span>Foco de Preço: {bairro.focoPreco}</span>
+                                                <span>Expectativa: {bairro.expectativa}</span>
+                                            </div>
+                                        </div>
                                     </Tooltip>
                                     <Popup>
                                         <strong>{bairro.nome}</strong> <br />
