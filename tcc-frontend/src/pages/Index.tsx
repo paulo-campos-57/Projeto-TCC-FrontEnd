@@ -58,7 +58,7 @@ export default function Index() {
                                 </button>
                             </div>
 
-                            <button className="mt-4 bg-vibratingBlue text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-goldenYellow hover:text-textBlack transition duration-300">
+                            <button className="mt-4 bg-vibratingBlue text-primaryWhite font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-200">
                                 Entrar
                             </button>
 
@@ -75,7 +75,7 @@ export default function Index() {
                         </div>
                     </div>
 
-                    {/* LADO DIREITO - JOGAR SEM CONTA */}
+                    {/* LADO DIREITO - JOGAR COMO CONVIDADO */}
                     <div className="w-1/2 h-full flex flex-col justify-center items-center text-textBlack font-bold bg-primaryWhite p-8 rounded-none shadow-lg">
                         <h1
                             className="text-4xl font-bold cursor-pointer"
@@ -99,13 +99,13 @@ export default function Index() {
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={confirmGuestPlay}
-                                className="bg-vibratingBlue text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-lightGreen hover:text-textBlack transition duration-300 flex-1"
+                                className="bg-vibratingBlue text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 hover:text-primaryWhite transition duration-300 flex-1"
                             >
                                 Sim, continuar
                             </button>
                             <button
                                 onClick={cancelGuestPlay}
-                                className="bg-crimsonRed text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-goldenYellow hover:text-textBlack transition duration-300 flex-1"
+                                className="bg-crimsonRed text-primaryWhite font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 hover:text-primaryWhite transition duration-300 flex-1"
                             >
                                 Cancelar
                             </button>
