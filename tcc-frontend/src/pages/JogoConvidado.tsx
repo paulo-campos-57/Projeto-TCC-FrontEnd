@@ -1,6 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
 export default function JogoConvidado() {
+    const navigate = useNavigate();
+
+    const handleGameMode = (tempo: string) => {
+        navigate('/PaginaJogo', { state: { tempoDeJogo: tempo } });
+    }
+
     return (
         <>
             <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite">
@@ -16,16 +23,28 @@ export default function JogoConvidado() {
                         </p>
 
                         <div className="flex flex-col w-3/5 gap-4">
-                            <button className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200">
+                            <button
+                                onClick={() => handleGameMode("1 semana")}
+                                className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200"
+                            >
                                 Jogo de 1 semana
                             </button>
-                            <button className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200">
+                            <button
+                                onClick={() => handleGameMode("15 dias")}
+                                className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200"
+                            >
                                 Jogo de 15 dias
                             </button>
-                            <button className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200">
+                            <button
+                                onClick={() => handleGameMode("1 mês")}
+                                className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200"
+                            >
                                 Jogo de 1 mês
                             </button>
-                            <button className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200">
+                            <button
+                                onClick={() => handleGameMode("livre")}
+                                className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200"
+                            >
                                 Jogo livre
                             </button>
                         </div>
