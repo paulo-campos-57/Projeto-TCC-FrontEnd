@@ -19,62 +19,60 @@ const RECIFE_BOUNDS: L.LatLngBoundsExpression = [
 const fixedZoom = 12;
 const center: L.LatLngExpression = [-8.05, -34.9];
 
-
 export default function PaginaJogo() {
     const location = useLocation();
     const navigate = useNavigate();
     const { tempoDeJogo } = location.state || {};
     const [showPopup, setShowPopup] = useState(true);
-    const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
+    const [selectedNeighborhood, setSelectedNeighborhood] = useState<any>(null);
 
     const handleContinue = () => setShowPopup(false);
     const handleGoBack = () => navigate('/JogoConvidado');
 
-    const handleNeighborhoodSelect = (bairro: { nome: string; pos: L.LatLngExpression; }) => {
-        setSelectedNeighborhood(bairro.nome);
-        alert(`Você escolheu começar o jogo em ${bairro.nome}!`);
+    const handleNeighborhoodSelect = (bairro: any) => {
+        setSelectedNeighborhood(bairro);
         // navigate('/TelaDeJogo', { state: { bairro: bairro.nome, tempoDeJogo } });
     };
 
-    const bairros: { nome: string; pos: L.LatLngExpression; descricao: string; focoPreco: string; expectativa: string; }[] = [
+    const bairros = [
         {
             nome: "Casa Forte",
-            pos: [-8.0305, -34.9235] as L.LatLngExpression,
+            pos: [-8.0305, -34.9235],
             descricao: "Bairro tradicional e arborizado, conhecido por sua tranquilidade e charme histórico.",
             focoPreco: "Alto",
             expectativa: "Gourmet e Sofisticada",
         },
         {
             nome: "Recife Antigo",
-            pos: [-8.0628, -34.8713] as L.LatLngExpression,
+            pos: [-8.0628, -34.8713],
             descricao: "Centro histórico da cidade, repleto de cultura, arte e vida noturna animada.",
             focoPreco: "Moderado a Alto",
             expectativa: "Criativa e Rápida",
         },
         {
             nome: "Ibura",
-            pos: [-8.1265, -34.9378] as L.LatLngExpression,
+            pos: [-8.1265, -34.9378],
             descricao: "Região popular e vibrante, com forte senso de comunidade e vida cotidiana intensa.",
             focoPreco: "Baixo",
             expectativa: "Familiar e Econômica",
         },
         {
             nome: "Boa Viagem",
-            pos: [-8.1198, -34.9023] as L.LatLngExpression,
+            pos: [-8.1198, -34.9023],
             descricao: "Área nobre à beira-mar, famosa por sua praia e comércio movimentado.",
             focoPreco: "Moderado a Alto",
             expectativa: "Saudável e Turística",
         },
         {
             nome: "Várzea",
-            pos: [-8.0443, -34.9512] as L.LatLngExpression,
+            pos: [-8.0443, -34.9512],
             descricao: "Bairro universitário e residencial, com atmosfera calma e verde.",
             focoPreco: "Moderado",
             expectativa: "Variada e Estudantil",
         },
         {
             nome: "Areias",
-            pos: [-8.0916, -34.9367] as L.LatLngExpression,
+            pos: [-8.0916, -34.9367],
             descricao: "Zona urbana popular, com comércio diversificado e moradores acolhedores.",
             focoPreco: "Moderado a Baixo",
             expectativa: "Tradicional e Caseira",
@@ -85,20 +83,13 @@ export default function PaginaJogo() {
         <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite relative">
             <Header />
 
-            <div className="flex flex-1 flex-col gap-8 justify-center items-center p-4">
-                <h1 className="text-3xl font-bold text-textBlack text-center">
-                    {selectedNeighborhood
-                        ? `Bairro selecionado: ${selectedNeighborhood}`
-                        : "Escolha um bairro para começar o jogo"}
-                </h1>
-
-                {!showPopup && (
-                    <div className="w-full max-w-4xl h-[80vh] rounded-2xl overflow-hidden shadow-lg">
+            <div className="flex flex-1 flex-col lg:flex-row gap-8 justify-center items-center p-6">
+                <div className="w-full lg:w-3/5 h-[70vh] rounded-2xl overflow-hidden shadow-lg">
+                    {!showPopup && (
                         <MapContainer
                             center={center}
                             zoom={fixedZoom}
                             style={{ width: "100%", height: "100%" }}
-
                             maxBounds={RECIFE_BOUNDS}
                             maxBoundsViscosity={1.0}
                             minZoom={fixedZoom}
@@ -117,7 +108,7 @@ export default function PaginaJogo() {
                             {bairros.map((bairro) => (
                                 <Marker
                                     key={bairro.nome}
-                                    position={bairro.pos}
+                                    position={bairro.pos as L.LatLngExpression}
                                     eventHandlers={{
                                         click: () => handleNeighborhoodSelect(bairro),
                                     }}
@@ -127,16 +118,9 @@ export default function PaginaJogo() {
                                         offset={[0, -10]}
                                         opacity={1}
                                         permanent={false}
-                                        className="custom-tooltip"
+                                        className="font-pressStart text-xs"
                                     >
-                                        <div className="flex flex-col justify-center items-center gap-1 font-pressStart text-xs">
-                                            <strong>{bairro.nome}</strong>
-                                            <span>{bairro.descricao}</span>
-                                            <div className="w-full flex justify-between">
-                                                <span>Foco de Preço: {bairro.focoPreco}</span>
-                                                <span>Expectativa: {bairro.expectativa}</span>
-                                            </div>
-                                        </div>
+                                        {bairro.nome}
                                     </Tooltip>
                                     <Popup>
                                         <strong>{bairro.nome}</strong> <br />
@@ -145,6 +129,34 @@ export default function PaginaJogo() {
                                 </Marker>
                             ))}
                         </MapContainer>
+                    )}
+                </div>
+
+                {/* Lateral de informações */}
+                {!showPopup && (
+                    <div className="w-full lg:w-2/5 bg-white rounded-2xl shadow-xl p-6 text-center flex flex-col justify-center items-center">
+                        {selectedNeighborhood ? (
+                            <>
+                                <h2 className="text-xl font-bold text-textBlack mb-4">
+                                    {selectedNeighborhood.nome}
+                                </h2>
+                                <p className="text-gray-700 text-sm mb-2">{selectedNeighborhood.descricao}</p>
+                                <p className="text-gray-800 text-sm mt-2">
+                                    <strong>Foco de Preço:</strong> {selectedNeighborhood.focoPreco}
+                                </p>
+                                <p className="text-gray-800 text-sm">
+                                    <strong>Expectativa:</strong> {selectedNeighborhood.expectativa}
+                                </p>
+                                <button
+                                    onClick={() => alert(`Iniciando jogo em ${selectedNeighborhood.nome}!`)}
+                                    className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-bold"
+                                >
+                                    Iniciar Jogo
+                                </button>
+                            </>
+                        ) : (
+                            <p className="text-gray-600">Clique em um bairro no mapa para ver os detalhes</p>
+                        )}
                     </div>
                 )}
             </div>
