@@ -1,20 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 
 export default function TelaDeJogo() {
     const location = useLocation();
-
     const { bairro, tempoDeJogo } = location.state || {};
 
+    // popup e orçamento
     const [showPopup, setShowPopup] = useState(true);
+    const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
     const [budget, setBudget] = useState(100);
+
+    // ingredientes
     const [ingredients, setIngredients] = useState([
         { nome: "Goma de Tapioca", preco: 10, comprado: false },
         { nome: "Queijo Coalho", preco: 15, comprado: false },
         { nome: "Coco Ralado", preco: 8, comprado: false },
         { nome: "Leite Condensado", preco: 12, comprado: false },
     ]);
+
+    const [diaAtual, setDiaAtual] = useState(1);
+    const [tempoRestante, setTempoRestante] = useState(3); // 10 segundos para teste
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+    // Timer do dia
+    useEffect(() => {
+        if (!isTimerRunning) return;
+
+        const timer = setInterval(() => {
+            setTempoRestante((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    setIsTimerRunning(false);
+                    setShowEndOfDayPopup(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [isTimerRunning]);
+
+
+    const nextDay = () => {
+        setShowEndOfDayPopup(false);
+        setDiaAtual((prev) => prev + 1);
+        setTempoRestante(3);
+        setIsTimerRunning(true);
+    };
 
     const buyIngridient = (index: number) => {
         const item = ingredients[index];
@@ -39,6 +73,7 @@ export default function TelaDeJogo() {
             return;
         }
         setShowPopup(false);
+        setIsTimerRunning(true);
     };
 
     const showIngredients = () => {
@@ -67,9 +102,12 @@ export default function TelaDeJogo() {
             {/* Conteúdo do jogo */}
             {!showPopup && (
                 <div className="h-full flex flex-col justify-center items-center">
+
                     <h1 className="text-2xl">Bem-vindo ao Jogo!</h1>
                     <p>Você está jogando no bairro: {bairro}</p>
-                    <p>Você tem {tempoDeJogo} para vender o maior número de tapiocas possível!</p>
+                    <p>
+                        Tempo de jogo: {tempoDeJogo} | Dia Atual: {diaAtual} | Tempo Restante: {tempoRestante}s
+                    </p>
                     <div className="w-full max-w-lg mt-6">
                         <h2 className="text-lg mb-2">Ingredientes Comprados:</h2>
                         {showIngredients()}
@@ -129,6 +167,22 @@ export default function TelaDeJogo() {
                                 Começar Jogo
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de fim de dia */}
+            {showEndOfDayPopup && (
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
+                        <h2 className="text-2xl mb-4">🌙 Fim do dia {diaAtual}</h2>
+                        <p className="mb-6">Você completou o dia! Pronto para o próximo?</p>
+                        <button
+                            onClick={nextDay}
+                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold"
+                        >
+                            Próximo Dia
+                        </button>
                     </div>
                 </div>
             )}
