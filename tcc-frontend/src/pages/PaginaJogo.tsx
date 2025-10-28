@@ -31,7 +31,17 @@ export default function PaginaJogo() {
 
     const handleNeighborhoodSelect = (bairro: any) => {
         setSelectedNeighborhood(bairro);
-        // navigate('/TelaDeJogo', { state: { bairro: bairro.nome, tempoDeJogo } });
+    };
+
+    const handleStartGame = () => {
+        if (selectedNeighborhood) {
+            navigate('/TelaDeJogo', {
+                state: {
+                    bairro: selectedNeighborhood.nome,
+                    tempoDeJogo
+                }
+            });
+        }
     };
 
     const bairros = [
@@ -148,7 +158,7 @@ export default function PaginaJogo() {
                                     <strong>Expectativa:</strong> {selectedNeighborhood.expectativa}
                                 </p>
                                 <button
-                                    onClick={() => alert(`Iniciando jogo em ${selectedNeighborhood.nome}!`)}
+                                    onClick={handleStartGame}
                                     className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-bold"
                                 >
                                     Iniciar Jogo
