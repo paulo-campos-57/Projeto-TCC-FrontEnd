@@ -9,6 +9,7 @@ export default function TelaDeJogo() {
     // popup e orçamento
     const [showPopup, setShowPopup] = useState(true);
     const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
+    const [showGameOverPopup, setShowGameOverPopup] = useState(false);
     const [budget, setBudget] = useState(100);
 
     // ingredientes
@@ -20,8 +21,20 @@ export default function TelaDeJogo() {
     ]);
 
     const [diaAtual, setDiaAtual] = useState(1);
-    const [tempoRestante, setTempoRestante] = useState(3); // 10 segundos para teste
+    const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia (teste 10)
     const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+    // Limite de dias baseado no tempoDeJogo
+    const definirLimiteDeDias = () => {
+        if (!tempoDeJogo) return 3; // padrão se não for informado
+        const valor = tempoDeJogo.toString().toLowerCase();
+        if (valor.includes("semana")) return 7; // jogo de 1 semana
+        if (valor.includes("15")) return 15; // jogo de 15 dias
+        if (valor.includes("mês")) return 30; // jogo de 1 mês
+        return 3;
+    };
+
+    const limiteDeDias = definirLimiteDeDias();
 
     // Timer do dia
     useEffect(() => {
@@ -32,7 +45,12 @@ export default function TelaDeJogo() {
                 if (prev <= 1) {
                     clearInterval(timer);
                     setIsTimerRunning(false);
-                    setShowEndOfDayPopup(true);
+
+                    if (diaAtual >= limiteDeDias) {
+                        setShowGameOverPopup(true);
+                    } else {
+                        setShowEndOfDayPopup(true);
+                    }
                     return 0;
                 }
                 return prev - 1;
@@ -40,13 +58,12 @@ export default function TelaDeJogo() {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isTimerRunning]);
-
+    }, [isTimerRunning, diaAtual]);
 
     const nextDay = () => {
         setShowEndOfDayPopup(false);
         setDiaAtual((prev) => prev + 1);
-        setTempoRestante(3);
+        setTempoRestante(10);
         setIsTimerRunning(true);
     };
 
@@ -102,11 +119,11 @@ export default function TelaDeJogo() {
             {/* Conteúdo do jogo */}
             {!showPopup && (
                 <div className="h-full flex flex-col justify-center items-center">
-
                     <h1 className="text-2xl">Bem-vindo ao Jogo!</h1>
                     <p>Você está jogando no bairro: {bairro}</p>
                     <p>
-                        Tempo de jogo: {tempoDeJogo} | Dia Atual: {diaAtual} | Tempo Restante: {tempoRestante}s
+                        Tempo de jogo: {tempoDeJogo} | Dia Atual: {diaAtual}/{limiteDeDias} | Tempo Restante:{" "}
+                        {tempoRestante}s
                     </p>
                     <div className="w-full max-w-lg mt-6">
                         <h2 className="text-lg mb-2">Ingredientes Comprados:</h2>
@@ -182,6 +199,25 @@ export default function TelaDeJogo() {
                             className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold"
                         >
                             Próximo Dia
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de fim de jogo */}
+            {showGameOverPopup && (
+                <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
+                        <h2 className="text-2xl mb-4">🎉 Fim do Jogo!</h2>
+                        <p className="mb-6">
+                            Você completou todos os {limiteDeDias} dias de jogo! <br />
+                            Parabéns pelo seu desempenho!
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold"
+                        >
+                            Reiniciar Jogo
                         </button>
                     </div>
                 </div>
