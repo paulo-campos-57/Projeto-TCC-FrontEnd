@@ -14,23 +14,23 @@ export default function TelaDeJogo() {
 
     // ingredientes
     const [ingredients, setIngredients] = useState([
-        { nome: "Goma de Tapioca", preco: 10, comprado: false },
-        { nome: "Queijo Coalho", preco: 15, comprado: false },
-        { nome: "Coco Ralado", preco: 8, comprado: false },
-        { nome: "Leite Condensado", preco: 12, comprado: false },
+        { nome: "Goma de Tapioca", preco: 10, quantidade: 0 },
+        { nome: "Queijo Coalho", preco: 15, quantidade: 0 },
+        { nome: "Coco Ralado", preco: 8, quantidade: 0 },
+        { nome: "Leite Condensado", preco: 12, quantidade: 0 },
     ]);
 
     const [diaAtual, setDiaAtual] = useState(1);
-    const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia (teste 10)
+    const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia
     const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     // Limite de dias baseado no tempoDeJogo
     const definirLimiteDeDias = () => {
-        if (!tempoDeJogo) return 3; // padrão se não for informado
+        if (!tempoDeJogo) return 3;
         const valor = tempoDeJogo.toString().toLowerCase();
-        if (valor.includes("semana")) return 7; // jogo de 1 semana
-        if (valor.includes("15")) return 15; // jogo de 15 dias
-        if (valor.includes("mês")) return 30; // jogo de 1 mês
+        if (valor.includes("semana")) return 7;
+        if (valor.includes("15")) return 15;
+        if (valor.includes("mês")) return 30;
         return 3;
     };
 
@@ -67,26 +67,27 @@ export default function TelaDeJogo() {
         setIsTimerRunning(true);
     };
 
-    const buyIngridient = (index: number) => {
+    // Compra de ingredientes
+    const buyIngredient = (index: number) => {
         const item = ingredients[index];
         if (!item) return;
-        if (item.comprado) return;
+
         if (budget < item.preco) {
-            alert("Orçamento insuficiente!");
+            alert(`Saldo insuficiente para comprar ${item.nome}.`);
             return;
         }
 
         const newIngredients = [...ingredients];
-        newIngredients[index].comprado = true;
+        newIngredients[index].quantidade += 1;
         setIngredients(newIngredients);
         setBudget(budget - item.preco);
     };
 
-    const allDone = ingredients.every((ing) => ing.comprado);
+    const anyBought = ingredients.some((ing) => ing.quantidade > 0);
 
     const confirm = () => {
-        if (!allDone) {
-            alert("Compre todos os ingredientes antes de começar!");
+        if (!anyBought) {
+            alert("Compre pelo menos um ingrediente antes de começar!");
             return;
         }
         setShowPopup(false);
@@ -94,7 +95,7 @@ export default function TelaDeJogo() {
     };
 
     const showIngredients = () => {
-        const comprados = ingredients.filter((i) => i.comprado);
+        const comprados = ingredients.filter((i) => i.quantidade > 0);
         if (comprados.length === 0) {
             return <p className="text-gray-600">Nenhum ingrediente comprado ainda.</p>;
         }
@@ -105,7 +106,7 @@ export default function TelaDeJogo() {
                         key={index}
                         className="bg-green-100 border border-green-400 px-4 py-2 rounded-xl text-sm font-semibold"
                     >
-                        {item.nome}
+                        {item.nome} × {item.quantidade}
                     </li>
                 ))}
             </ul>
@@ -151,22 +152,22 @@ export default function TelaDeJogo() {
                                 {ingredients.map((item, index) => (
                                     <div
                                         key={index}
-                                        className={`border rounded-xl p-4 text-center transition ${item.comprado
-                                            ? "bg-green-100 border-green-400"
-                                            : "bg-gray-100 hover:bg-gray-200"
-                                            }`}
+                                        className={`border rounded-xl p-4 text-center bg-gray-100 hover:bg-gray-200 transition`}
                                     >
                                         <p className="text-lg">{item.nome}</p>
                                         <p className="text-sm mb-2">Preço: R$ {item.preco}</p>
+                                        <p className="text-sm mb-2">
+                                            Comprado: <strong>{item.quantidade}</strong>
+                                        </p>
                                         <button
-                                            disabled={item.comprado}
-                                            onClick={() => buyIngridient(index)}
-                                            className={`px-4 py-2 rounded-xl font-bold ${item.comprado
-                                                ? "bg-green-400 cursor-default text-white"
-                                                : "bg-blue-500 hover:bg-blue-600 text-white"
+                                            onClick={() => buyIngredient(index)}
+                                            className={`px-4 py-2 rounded-xl font-bold ${budget >= item.preco
+                                                    ? "bg-blue-500 hover:bg-blue-600 text-white"
+                                                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
                                                 }`}
+                                            disabled={budget < item.preco}
                                         >
-                                            {item.comprado ? "Comprado" : "Comprar"}
+                                            Comprar
                                         </button>
                                     </div>
                                 ))}
@@ -176,9 +177,9 @@ export default function TelaDeJogo() {
                         <div className="text-center mt-6">
                             <button
                                 onClick={confirm}
-                                className={`px-6 py-3 rounded-xl text-lg font-bold ${allDone
-                                    ? "bg-green-600 hover:bg-green-700 text-white"
-                                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                className={`px-6 py-3 rounded-xl text-lg font-bold ${anyBought
+                                        ? "bg-green-600 hover:bg-green-700 text-white"
+                                        : "bg-gray-400 text-gray-700 cursor-not-allowed"
                                     }`}
                             >
                                 Começar Jogo
