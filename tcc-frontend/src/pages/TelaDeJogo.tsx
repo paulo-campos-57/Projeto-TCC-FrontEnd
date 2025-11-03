@@ -23,6 +23,7 @@ export default function TelaDeJogo() {
     const [diaAtual, setDiaAtual] = useState(1);
     const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia
     const [isTimerRunning, setIsTimerRunning] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
 
     // Limite de dias baseado no tempoDeJogo
     const definirLimiteDeDias = () => {
@@ -38,14 +39,13 @@ export default function TelaDeJogo() {
 
     // Timer do dia
     useEffect(() => {
-        if (!isTimerRunning) return;
+        if (!isTimerRunning || isPaused) return;
 
         const timer = setInterval(() => {
             setTempoRestante((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
                     setIsTimerRunning(false);
-
                     if (diaAtual >= limiteDeDias) {
                         setShowGameOverPopup(true);
                     } else {
@@ -58,7 +58,20 @@ export default function TelaDeJogo() {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isTimerRunning, diaAtual]);
+    }, [isTimerRunning, isPaused, diaAtual, limiteDeDias]);
+
+    // Função para pausar e retomar o jogo
+    const togglePause = () => {
+        if (showPopup || showEndOfDayPopup || showGameOverPopup) return;
+
+        setIsPaused((prev) => {
+            const next = !prev;
+            if (!next && !isTimerRunning) {
+                setIsTimerRunning(true);
+            }
+            return next;
+        });
+    };
 
     const nextDay = () => {
         setShowEndOfDayPopup(false);
@@ -120,12 +133,43 @@ export default function TelaDeJogo() {
             {/* Conteúdo do jogo */}
             {!showPopup && (
                 <div className="h-full flex flex-col justify-center items-center">
-                    <h1 className="text-2xl">Bem-vindo ao Jogo!</h1>
-                    <p>Você está jogando no bairro: {bairro}</p>
-                    <p>
-                        Tempo de jogo: {tempoDeJogo} | Dia Atual: {diaAtual}/{limiteDeDias} | Tempo Restante:{" "}
-                        {tempoRestante}s
-                    </p>
+                    {/* Painel superior */}
+                    <div className="w-full h-24 flex justify-around items-center">
+                        {[
+                            `Bairro: ${bairro}`,
+                            `Orçamento: R$ ${budget}`,
+                            `Dia: ${diaAtual}/${limiteDeDias}`,
+                            `Tempo Restante: ${tempoRestante}`,
+                        ].map((text, i) => (
+                            <div
+                                key={i}
+                                className="relative inline-block bg-vibratingBlue text-black text-sm px-4 py-2 border-4 border-[#FFD700]
+                                drop-shadow-[4px_0_#FFD700] drop-shadow-[-4px_0_#FFD700]
+                                drop-shadow-[0_4px_#FFD700] drop-shadow-[0_-4px_#FFD700]
+                                drop-shadow-[4px_4px_#FFD700] drop-shadow-[-4px_4px_#FFD700]
+                                drop-shadow-[4px_-4px_#FFD700] drop-shadow-[-4px_-4px_#FFD700]
+                                [clip-path:polygon(0_8px,8px_8px,8px_0,calc(100%-8px)_0,calc(100%-8px)_8px,100%_8px,100%_calc(100%-8px),calc(100%-8px)_calc(100%-8px),calc(100%-8px)_100%,8px_100%,8px_calc(100%-8px),0_calc(100%-8px))]
+                                flex items-center justify-center"
+                            >
+                                {text}
+                            </div>
+                        ))}
+
+                        {/* Botão de pausa */}
+                        <button
+                            onClick={togglePause}
+                            className={`relative inline-block text-sm font-bold px-4 py-2 border-4 
+                                ${isPaused ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}
+                                border-[#FFD700] text-white
+                                drop-shadow-[2px_2px_#FFD700] [clip-path:polygon(0_8px,8px_8px,8px_0,calc(100%-8px)_0,calc(100%-8px)_8px,100%_8px,100%_calc(100%-8px),calc(100%-8px)_calc(100%-8px),calc(100%-8px)_100%,8px_100%,8px_calc(100%-8px),0_calc(100%-8px))]
+                            `}
+                        >
+                            {isPaused ? "▶ Retomar" : "⏸ Pausar"}
+                        </button>
+                    </div>
+
+                    <h1 className="text-2xl mt-4">Bem-vindo ao Jogo!</h1>
+
                     <div className="w-full max-w-lg mt-6">
                         <h2 className="text-lg mb-2">Ingredientes Comprados:</h2>
                         {showIngredients()}
@@ -162,8 +206,8 @@ export default function TelaDeJogo() {
                                         <button
                                             onClick={() => buyIngredient(index)}
                                             className={`px-4 py-2 rounded-xl font-bold ${budget >= item.preco
-                                                    ? "bg-blue-500 hover:bg-blue-600 text-white"
-                                                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                                ? "bg-blue-500 hover:bg-blue-600 text-white"
+                                                : "bg-gray-400 text-gray-700 cursor-not-allowed"
                                                 }`}
                                             disabled={budget < item.preco}
                                         >
@@ -178,8 +222,8 @@ export default function TelaDeJogo() {
                             <button
                                 onClick={confirm}
                                 className={`px-6 py-3 rounded-xl text-lg font-bold ${anyBought
-                                        ? "bg-green-600 hover:bg-green-700 text-white"
-                                        : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                    ? "bg-green-600 hover:bg-green-700 text-white"
+                                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
                                     }`}
                             >
                                 Começar Jogo
