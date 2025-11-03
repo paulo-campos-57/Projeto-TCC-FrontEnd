@@ -4,7 +4,7 @@
   </h1>  
 </div>
 This repository is intended for the Front-End of <a href="https://github.com/paulo-campos-57" target="_blank">Paulo Campos</a> Final Graduation Project.<br>
-The Project documentation can be found at this <a href="https://docs.google.com/document/d/1WqyVEorM9IbZZ5CjwYWsqjv00DI9vhe-/edit?usp=sharing&ouid=104768249469194230645&rtpof=true&sd=true" target"_blank">link.</a>
+The Project documentation can be found at this <a href="https://docs.google.com/document/d/1WqyVEorM9IbZZ5CjwYWsqjv00DI9vhe-/edit?usp=sharing&ouid=104768249469194230645&rtpof=true&sd=true" target="_blank">link.</a>
 
 ---
 
@@ -64,7 +64,7 @@ To locally run the project, follow these steps:
   </h1>  
 </div>
 Este repositório é destinado ao Front-End do Trabalho de Conclusão de Curso de <a href="https://github.com/paulo-campos-57" target="_blank">Paulo Campos</a>.<br>
-A documentação do projeto pode ser encontrada neste <a href="https://docs.google.com/document/d/1WqyVEorM9IbZZ5CjwYWsqjv00DI9vhe-/edit?usp=sharing&ouid=104768249469194230645&rtpof=true&sd=true" target"_blank">link.</a>
+A documentação do projeto pode ser encontrada neste <a href="https://docs.google.com/document/d/1WqyVEorM9IbZZ5CjwYWsqjv00DI9vhe-/edit?usp=sharing&ouid=104768249469194230645&rtpof=true&sd=true" target="_blank">link.</a>
 
 ---
 
