@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
+import type { Cliente } from "../types/cliente.interface";
+import { criarBairroComPreferencias } from "../services/bairro.service";
+import { criarPedidoPorPreferencia } from "../services/pedido.service";
 
 export default function TelaDeJogo() {
     const location = useLocation();
@@ -20,10 +23,73 @@ export default function TelaDeJogo() {
         { nome: "Leite Condensado", preco: 12, quantidade: 0 },
     ]);
 
+    // tempo e dias
     const [diaAtual, setDiaAtual] = useState(1);
     const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+
+    const isTimerRunningRef = useRef(isTimerRunning);
+    const isPausedRef = useRef(isPaused);
+    const tempoRestanteRef = useRef(tempoRestante);
+
+    useEffect(() => { isTimerRunningRef.current = isTimerRunning; }, [isTimerRunning]);
+    useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
+    useEffect(() => { tempoRestanteRef.current = tempoRestante; }, [tempoRestante]);
+
+    // TODO: Implementar lógica de compra e satisfação dos clientes
+
+    // fluxo de clientes
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [clientesGerados, setClientesGerados] = useState(0);
+    const [clientesHoje, setClientesHoje] = useState(0);
+    const [totalClientesDia, setTotalClientesDia] = useState(0);
+    const intervaloClientes = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Geração de clientes
+    const gerarCliente = (nomeBairro: string): Cliente => {
+        const bairroObj = criarBairroComPreferencias(nomeBairro);
+        const pedido = criarPedidoPorPreferencia(bairroObj.preferenciaTapioca);
+
+        return {
+            pedido,
+            bairro: bairroObj,
+            satisfacao: Math.floor(Math.random() * 51) + 50,
+            status: 'esperando',
+        };
+    };
+
+    // Fluxo de clientes ao longo do dia
+    const gerarFluxoDeClientes = () => {
+        if (intervaloClientes.current) return;
+
+        const total = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
+        setClientesGerados(total);
+        setClientesHoje(0);
+        setTotalClientesDia(0);
+        setClientes([]);
+
+        let count = 0;
+
+        intervaloClientes.current = setInterval(() => {
+            if (isPausedRef.current || !isTimerRunningRef.current || tempoRestanteRef.current <= 0) {
+                return;
+            }
+
+            if (count >= total) {
+                clearInterval(intervaloClientes.current!);
+                intervaloClientes.current = null;
+                setTotalClientesDia(total);
+                return;
+            }
+
+            const novoCliente = gerarCliente(bairro || "Centro");
+            count++;
+            setClientesHoje((prev) => prev + 1);
+            setClientes((prev) => [...prev, novoCliente]);
+        }, 800); // milissegundos entre clientes
+    };
+
 
     // Limite de dias baseado no tempoDeJogo
     const definirLimiteDeDias = () => {
@@ -45,6 +111,7 @@ export default function TelaDeJogo() {
             setTempoRestante((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
+                    if (intervaloClientes.current) clearInterval(intervaloClientes.current);
                     setIsTimerRunning(false);
                     if (diaAtual >= limiteDeDias) {
                         setShowGameOverPopup(true);
@@ -63,21 +130,17 @@ export default function TelaDeJogo() {
     // Função para pausar e retomar o jogo
     const togglePause = () => {
         if (showPopup || showEndOfDayPopup || showGameOverPopup) return;
-
-        setIsPaused((prev) => {
-            const next = !prev;
-            if (!next && !isTimerRunning) {
-                setIsTimerRunning(true);
-            }
-            return next;
-        });
+        setIsPaused((prev) => !prev);
     };
 
+    // Avançar para o próximo dia
     const nextDay = () => {
         setShowEndOfDayPopup(false);
         setDiaAtual((prev) => prev + 1);
         setTempoRestante(10);
         setIsTimerRunning(true);
+        setTimeout(() => gerarFluxoDeClientes(), 100);
+        gerarFluxoDeClientes();
     };
 
     // Compra de ingredientes
@@ -105,6 +168,8 @@ export default function TelaDeJogo() {
         }
         setShowPopup(false);
         setIsTimerRunning(true);
+        setTimeout(() => gerarFluxoDeClientes(), 100);
+        gerarFluxoDeClientes();
     };
 
     const showIngredients = () => {
@@ -173,6 +238,27 @@ export default function TelaDeJogo() {
                     <div className="w-full max-w-lg mt-6">
                         <h2 className="text-lg mb-2">Ingredientes Comprados:</h2>
                         {showIngredients()}
+                    </div>
+
+                    <div className="text-center mt-6">
+                        <h2 className="text-xl">👥 Clientes chegando...</h2>
+                        <p className="text-lg mt-2">
+                            Clientes atendidos hoje: <strong>{clientesHoje}</strong> / {clientesGerados || "??"}
+                        </p>
+                        {totalClientesDia > 0 && (
+                            <p className="text-green-600 mt-2 font-bold">
+                                Total de clientes hoje: {totalClientesDia}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Lista opcional para debug/visualização */}
+                    <div className="mt-4 max-h-40 overflow-y-auto text-sm text-center">
+                        {clientes.map((c, i) => (
+                            <div key={i} className="border-b border-gray-300 py-1">
+                                Cliente {i + 1}: {c.bairro.nome} — {c.bairro.preferenciaTapioca} — satisfação {c.satisfacao}%
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
