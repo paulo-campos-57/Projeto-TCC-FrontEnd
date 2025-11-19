@@ -46,6 +46,7 @@ export function criarBairroComPreferencias(nomeDoBairro: string): Bairro {
     return {
         nome: nomeDoBairro,
         preferenciaPreco: preferenciaPreco,
-        preferenciaTapioca: preferenciaTapioca
+        preferenciaTapioca: preferenciaTapioca,
+        satisfacaoBase: 3, // Satisfação base do bairro, entre 1 e 10
     };
 }
