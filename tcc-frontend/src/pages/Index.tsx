@@ -3,6 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import NavItem from "../components/NavItem";
+import Footer from "../components/Footer";
 
 export default function Index() {
     const [showPassword, setShowPassword] = useState(false);
@@ -84,6 +85,7 @@ export default function Index() {
                         </h1>
                     </div>
                 </div>
+                <Footer />
             </div>
 
             {/* POPUP DE CONFIRMAÇÃO */}
