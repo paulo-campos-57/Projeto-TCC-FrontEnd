@@ -14,7 +14,7 @@ export default function TelaDeJogo() {
     const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
     const [showGameOverPopup, setShowGameOverPopup] = useState(false);
     const [budget, setBudget] = useState(100);
-    // Precificação e Compras
+    // precificação e compras
     const [popupStep, setPopupStep] = useState(1);
     const [precoTapioca, setPrecoTapioca] = useState(15);
 
@@ -49,7 +49,7 @@ export default function TelaDeJogo() {
     const [totalClientesDia, setTotalClientesDia] = useState(0);
     const intervaloClientes = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Geração de clientes
+    // geração de clientes
     const gerarCliente = (nomeBairro: string): Cliente => {
         const bairroObj = criarBairroComPreferencias(nomeBairro);
         const pedido = criarPedidoPorPreferencia(bairroObj.preferenciaTapioca);
@@ -62,7 +62,7 @@ export default function TelaDeJogo() {
         };
     };
 
-    // Fluxo de clientes ao longo do dia
+    // fluxo de clientes ao longo do dia
     const gerarFluxoDeClientes = () => {
         if (intervaloClientes.current) return;
 
@@ -86,15 +86,36 @@ export default function TelaDeJogo() {
                 return;
             }
 
-            const novoCliente = gerarCliente(bairro || "Centro");
-            count++;
-            setClientesHoje((prev) => prev + 1);
-            setClientes((prev) => [...prev, novoCliente]);
-        }, 800); // milissegundos entre clientes
+            // LÓGICA DE ESTOQUE
+            setIngredients((prevIngredients) => {
+                const temEstoque = prevIngredients.every(ing => ing.quantidade > 0);
+
+                if (!temEstoque) {
+                    // TODO: Adicionar um estado para avisar "Sem estoque!" na tela
+                    return prevIngredients;
+                }
+
+                // LÓGICA DE VENDA
+                const novosIngredientes = prevIngredients.map(ing => ({
+                    ...ing,
+                    quantidade: ing.quantidade - 1
+                }));
+
+                setBudget(prevBudget => prevBudget + precoTapioca);
+
+                const novoCliente = gerarCliente(bairro || "Centro");
+                count++;
+                setClientesHoje((prev) => prev + 1);
+                setClientes((prev) => [...prev, novoCliente]);
+
+                return novosIngredientes;
+            });
+
+        }, 800); // Intervalo entre clientes (em milissegundos)
     };
 
 
-    // Limite de dias baseado no tempoDeJogo
+    // limite de dias baseado no tempoDeJogo
     const definirLimiteDeDias = () => {
         if (!tempoDeJogo) return 3;
         const valor = tempoDeJogo.toString().toLowerCase();
@@ -106,7 +127,7 @@ export default function TelaDeJogo() {
 
     const limiteDeDias = definirLimiteDeDias();
 
-    // Timer do dia
+    // timer do dia
     useEffect(() => {
         if (!isTimerRunning || isPaused) return;
 
@@ -130,13 +151,13 @@ export default function TelaDeJogo() {
         return () => clearInterval(timer);
     }, [isTimerRunning, isPaused, diaAtual, limiteDeDias]);
 
-    // Função para pausar e retomar o jogo
+    // função para pausar e retomar o jogo
     const togglePause = () => {
         if (showPopup || showEndOfDayPopup || showGameOverPopup) return;
         setIsPaused((prev) => !prev);
     };
 
-    // Avançar para o próximo dia
+    // avançar para o próximo dia
     const nextDay = () => {
         setShowEndOfDayPopup(false);
         setDiaAtual((prev) => prev + 1);
@@ -146,7 +167,7 @@ export default function TelaDeJogo() {
         gerarFluxoDeClientes();
     };
 
-    // Compra de ingredientes
+    // compra de ingredientes
     const buyIngredient = (index: number) => {
         const item = ingredients[index];
         if (!item) return;
