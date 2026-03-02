@@ -13,6 +13,7 @@ export default function TelaDeJogo() {
     const [showPopup, setShowPopup] = useState(true);
     const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
     const [showGameOverPopup, setShowGameOverPopup] = useState(false);
+    const [showOutOfStockPopup, setShowOutOfStockPopup] = useState(false);
     const [budget, setBudget] = useState(100);
     // precificação e compras
     const [popupStep, setPopupStep] = useState(1);
@@ -91,8 +92,18 @@ export default function TelaDeJogo() {
                 const temEstoque = prevIngredients.every(ing => ing.quantidade > 0);
 
                 if (!temEstoque) {
-                    // TODO: Adicionar um estado para avisar "Sem estoque!" na tela
-                    return prevIngredients;
+                    if (intervaloClientes.current) {
+                        clearInterval(intervaloClientes.current);
+                        intervaloClientes.current = null;
+
+                        setIsTimerRunning(false);
+
+                        setTempoRestante(0);
+
+                        setShowOutOfStockPopup(true);
+
+                        return prevIngredients;
+                    }
                 }
 
                 // LÓGICA DE VENDA
@@ -377,6 +388,31 @@ export default function TelaDeJogo() {
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de ingredientes esgotados */}
+            {showOutOfStockPopup && (
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
+                        <h2 className="text-2xl mb-4">⚠️ Estoque Esgotado!</h2>
+                        <p className="mb-6 font-pressStart text-xs leading-loose">
+                            Você não tem mais ingredientes. As vendas foram encerradas mais cedo hoje!
+                        </p>
+                        <button
+                            onClick={() => {
+                                setShowOutOfStockPopup(false);
+                                if (diaAtual >= limiteDeDias) {
+                                    setShowGameOverPopup(true);
+                                } else {
+                                    setShowEndOfDayPopup(true);
+                                }
+                            }}
+                            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold"
+                        >
+                            Ver Resultados
+                        </button>
                     </div>
                 </div>
             )}
