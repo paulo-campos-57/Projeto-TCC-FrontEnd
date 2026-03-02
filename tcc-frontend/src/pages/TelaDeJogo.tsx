@@ -14,6 +14,9 @@ export default function TelaDeJogo() {
     const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
     const [showGameOverPopup, setShowGameOverPopup] = useState(false);
     const [budget, setBudget] = useState(100);
+    // Precificação e Compras
+    const [popupStep, setPopupStep] = useState(1);
+    const [precoTapioca, setPrecoTapioca] = useState(15);
 
     // ingredientes
     const [ingredients, setIngredients] = useState([
@@ -161,16 +164,25 @@ export default function TelaDeJogo() {
 
     const anyBought = ingredients.some((ing) => ing.quantidade > 0);
 
-    const confirm = () => {
+    const handleNextStep = () => {
         if (!anyBought) {
-            alert("Compre pelo menos um ingrediente antes de começar!");
+            alert("Compre pelo menos um ingrediente antes de continuar!");
             return;
         }
+        setPopupStep(2);
+    }
+
+    const handleStartGame = () => {
+        if (precoTapioca <= 0) {
+            alert("Defina um preço maior do que 0!");
+            return;
+        }
+
         setShowPopup(false);
         setIsTimerRunning(true);
         setTimeout(() => gerarFluxoDeClientes(), 100);
         gerarFluxoDeClientes();
-    };
+    }
 
     const showIngredients = () => {
         const comprados = ingredients.filter((i) => i.quantidade > 0);
@@ -265,56 +277,85 @@ export default function TelaDeJogo() {
 
             {/* Popup inicial */}
             {showPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-                    <div className="bg-white w-11/12 md:w-3/4 lg:w-2/3 h-5/6 rounded-2xl shadow-xl p-6 flex flex-col justify-between">
-                        <div>
-                            <h2 className="text-2xl text-center mb-4">Preparação para o jogo</h2>
-                            <p className="text-center text-lg mb-4">
-                                Bairro: <strong>{bairro}</strong> <br />
-                                Tempo de jogo: <strong>{tempoDeJogo}</strong>
-                            </p>
+                <div className="absolute inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 text-black">
+                    <div className="bg-white w-11/12 md:w-3/4 lg:w-2/3 min-h-[500px] rounded-2xl shadow-xl p-6 flex flex-col justify-between border-4 border-vibratingBlue">
 
-                            <div className="text-center mb-6">
-                                <p className="text-xl">💰 Orçamento: R$ {budget}</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                {ingredients.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className={`border rounded-xl p-4 text-center bg-gray-100 hover:bg-gray-200 transition`}
-                                    >
-                                        <p className="text-lg">{item.nome}</p>
-                                        <p className="text-sm mb-2">Preço: R$ {item.preco}</p>
-                                        <p className="text-sm mb-2">
-                                            Comprado: <strong>{item.quantidade}</strong>
-                                        </p>
-                                        <button
-                                            onClick={() => buyIngredient(index)}
-                                            className={`px-4 py-2 rounded-xl font-bold ${budget >= item.preco
-                                                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                                                : "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                                }`}
-                                            disabled={budget < item.preco}
-                                        >
-                                            Comprar
-                                        </button>
+                        {/* ETAPA 1: COMPRA DE INGREDIENTES */}
+                        {popupStep === 1 && (
+                            <>
+                                <div>
+                                    <h2 className="text-2xl text-center mb-4 font-bold">🛒 Fase 1: Estoque</h2>
+                                    <div className="text-center mb-6 bg-yellow-100 p-2 rounded-lg">
+                                        <p className="text-xl">💰 Orçamento: R$ {budget}</p>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
 
-                        <div className="text-center mt-6">
-                            <button
-                                onClick={confirm}
-                                className={`px-6 py-3 rounded-xl text-lg font-bold ${anyBought
-                                    ? "bg-green-600 hover:bg-green-700 text-white"
-                                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                    }`}
-                            >
-                                Começar Jogo
-                            </button>
-                        </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {ingredients.map((item, index) => (
+                                            <div key={index} className="border-2 border-gray-200 rounded-xl p-3 text-center bg-gray-50">
+                                                <p className="font-bold">{item.nome}</p>
+                                                <p className="text-xs mb-2">Preço: R$ {item.preco}</p>
+                                                <p className="text-sm mb-2">Qtd: <strong>{item.quantidade}</strong></p>
+                                                <button
+                                                    onClick={() => buyIngredient(index)}
+                                                    className={`px-3 py-1 rounded-lg text-xs font-bold ${budget >= item.preco ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500"}`}
+                                                    disabled={budget < item.preco}
+                                                >
+                                                    + Comprar
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleNextStep}
+                                    className="mt-6 px-6 py-3 bg-vibratingBlue text-white rounded-xl font-bold hover:bg-blue-700 transition"
+                                >
+                                    Definir Preço →
+                                </button>
+                            </>
+                        )}
+
+                        {/* ETAPA 2: DEFINIÇÃO DE PREÇO */}
+                        {popupStep === 2 && (
+                            <div className="flex flex-col items-center justify-center flex-1">
+                                <h2 className="text-2xl text-center mb-6 font-bold">💰 Fase 2: Precificação</h2>
+                                <p className="text-center mb-8 text-gray-600">
+                                    Por quanto você vai vender cada tapioca no bairro <strong>{bairro}</strong>?
+                                </p>
+
+                                <div className="flex items-center gap-6 mb-10">
+                                    <button
+                                        onClick={() => setPrecoTapioca(Math.max(1, precoTapioca - 1))}
+                                        className="w-12 h-12 bg-red-500 text-white rounded-full text-2xl font-bold"
+                                    >-</button>
+
+                                    <div className="text-center">
+                                        <span className="text-4xl font-bold text-green-600">R$ {precoTapioca}</span>
+                                        <p className="text-xs text-gray-400 mt-2">Preço por unidade</p>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setPrecoTapioca(precoTapioca + 1)}
+                                        className="w-12 h-12 bg-green-500 text-white rounded-full text-2xl font-bold"
+                                    >+</button>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setPopupStep(1)}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold"
+                                    >
+                                        Voltar
+                                    </button>
+                                    <button
+                                        onClick={handleStartGame}
+                                        className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:animate-pulse"
+                                    >
+                                        Abrir Banquinha! 🚀
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
