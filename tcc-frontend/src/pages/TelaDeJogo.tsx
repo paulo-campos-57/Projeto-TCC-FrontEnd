@@ -21,10 +21,10 @@ export default function TelaDeJogo() {
 
     // ingredientes
     const [ingredients, setIngredients] = useState([
-        { nome: "Goma de Tapioca", preco: 10, quantidade: 0 },
-        { nome: "Queijo Coalho", preco: 15, quantidade: 0 },
-        { nome: "Coco Ralado", preco: 8, quantidade: 0 },
-        { nome: "Leite Condensado", preco: 12, quantidade: 0 },
+        { nome: "Goma de Tapioca", preco: 10, quantidade: 0, porcao: 5 },
+        { nome: "Queijo Coalho", preco: 15, quantidade: 0, porcao: 3 },
+        { nome: "Coco Ralado", preco: 8, quantidade: 0, porcao: 4 },
+        { nome: "Leite Condensado", preco: 12, quantidade: 0, porcao: 5 },
     ]);
 
     // tempo e dias
@@ -323,16 +323,27 @@ export default function TelaDeJogo() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         {ingredients.map((item, index) => (
-                                            <div key={index} className="border-2 border-gray-200 rounded-xl p-3 text-center bg-gray-50">
-                                                <p className="font-bold">{item.nome}</p>
-                                                <p className="text-xs mb-2">Preço: R$ {item.preco}</p>
-                                                <p className="text-sm mb-2">Qtd: <strong>{item.quantidade}</strong></p>
+                                            <div key={index} className="border-2 border-gray-200 rounded-xl p-3 text-center bg-gray-50 flex flex-col justify-between">
+                                                <div>
+                                                    <p className="font-bold text-sm mb-1">{item.nome}</p>
+                                                    <p className="text-[10px] text-blue-600 font-bold mb-2 uppercase tracking-tight">
+                                                        📦 Rende: {item.porcao} porções
+                                                    </p>
+                                                    <div className="bg-white rounded-lg py-2 mb-2 border border-gray-100">
+                                                        <p className="text-xs">Preço: <span className="text-green-600 font-bold">R$ {item.preco}</span></p>
+                                                        <p className="text-xs">No estoque: <strong>{item.quantidade}</strong></p>
+                                                    </div>
+                                                </div>
+
                                                 <button
                                                     onClick={() => buyIngredient(index)}
-                                                    className={`px-3 py-1 rounded-lg text-xs font-bold ${budget >= item.preco ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500"}`}
+                                                    className={`w-full px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${budget >= item.preco
+                                                            ? "bg-vibratingBlue text-white hover:scale-105 active:bg-blue-800"
+                                                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                        }`}
                                                     disabled={budget < item.preco}
                                                 >
-                                                    + Comprar
+                                                    {budget >= item.preco ? "+ COMPRAR" : "SALDO INSUF."}
                                                 </button>
                                             </div>
                                         ))}
