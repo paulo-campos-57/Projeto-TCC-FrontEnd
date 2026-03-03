@@ -87,7 +87,7 @@ export default function TelaDeJogo() {
                 return;
             }
 
-            // LÓGICA DE ESTOQUE
+            // LÓGICA DE ESTOQUE E VENDA
             setIngredients((prevIngredients) => {
                 const temEstoque = prevIngredients.every(ing => ing.quantidade > 0);
 
@@ -95,29 +95,25 @@ export default function TelaDeJogo() {
                     if (intervaloClientes.current) {
                         clearInterval(intervaloClientes.current);
                         intervaloClientes.current = null;
-
-                        setIsTimerRunning(false);
-
-                        setTempoRestante(0);
-
-                        setShowOutOfStockPopup(true);
-
-                        return prevIngredients;
                     }
+                    setIsTimerRunning(false);
+                    setTempoRestante(0);
+                    setShowOutOfStockPopup(true);
+                    return prevIngredients;
                 }
 
-                // LÓGICA DE VENDA
                 const novosIngredientes = prevIngredients.map(ing => ({
                     ...ing,
                     quantidade: ing.quantidade - 1
                 }));
 
+                // processa a venda financeira e visual
                 setBudget(prevBudget => prevBudget + precoTapioca);
-
                 const novoCliente = gerarCliente(bairro || "Centro");
-                count++;
+
                 setClientesHoje((prev) => prev + 1);
                 setClientes((prev) => [...prev, novoCliente]);
+                count++;
 
                 return novosIngredientes;
             });
@@ -189,7 +185,8 @@ export default function TelaDeJogo() {
         }
 
         const newIngredients = [...ingredients];
-        newIngredients[index].quantidade += 1;
+        newIngredients[index].quantidade += item.porcao;
+
         setIngredients(newIngredients);
         setBudget(budget - item.preco);
     };
@@ -226,7 +223,8 @@ export default function TelaDeJogo() {
                 {comprados.map((item, index) => (
                     <li
                         key={index}
-                        className="bg-green-100 border border-green-400 px-4 py-2 rounded-xl text-sm font-semibold"
+                        className={`${item.quantidade < 5 ? "bg-red-100 border-red-400" : "bg-green-100 border-green-400"} 
+                                    border px-4 py-2 rounded-xl text-sm font-semibold`}
                     >
                         {item.nome} × {item.quantidade}
                     </li>
@@ -338,8 +336,8 @@ export default function TelaDeJogo() {
                                                 <button
                                                     onClick={() => buyIngredient(index)}
                                                     className={`w-full px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${budget >= item.preco
-                                                            ? "bg-vibratingBlue text-white hover:scale-105 active:bg-blue-800"
-                                                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                        ? "bg-vibratingBlue text-white hover:scale-105 active:bg-blue-800"
+                                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                                         }`}
                                                     disabled={budget < item.preco}
                                                 >
