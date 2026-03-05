@@ -1,16 +1,26 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip } from "react-leaflet";
 import Header from "../components/Header";
 import L from "leaflet";
 import type { BairroMapa } from "../types/bairro-mapa.interface";
 
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
+const defaultIcon = L.icon({
+    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    tooltipAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
 
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+const selectedIcon = L.icon({
+    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    tooltipAnchor: [1, -34],
+    shadowSize: [41, 41]
 });
 
 const RECIFE_BOUNDS: L.LatLngBoundsExpression = [
@@ -27,7 +37,6 @@ export default function PaginaJogo() {
     const { tempoDeJogo } = (location.state as { tempoDeJogo?: string }) || {};
 
     const [showPopup, setShowPopup] = useState(true);
-
     const [selectedNeighborhood, setSelectedNeighborhood] = useState<BairroMapa | null>(null);
 
     const handleContinue = () => setShowPopup(false);
@@ -123,6 +132,7 @@ export default function PaginaJogo() {
                                 <Marker
                                     key={bairro.nome}
                                     position={bairro.pos as L.LatLngExpression}
+                                    icon={selectedNeighborhood?.nome === bairro.nome ? selectedIcon : defaultIcon}
                                     eventHandlers={{
                                         click: () => handleNeighborhoodSelect(bairro),
                                     }}
@@ -136,10 +146,6 @@ export default function PaginaJogo() {
                                     >
                                         {bairro.nome}
                                     </Tooltip>
-                                    <Popup>
-                                        <strong>{bairro.nome}</strong> <br />
-                                        Clique para iniciar o jogo aqui!
-                                    </Popup>
                                 </Marker>
                             ))}
                         </MapContainer>
