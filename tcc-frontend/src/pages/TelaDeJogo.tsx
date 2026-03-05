@@ -191,6 +191,16 @@ export default function TelaDeJogo() {
         setBudget(budget - item.preco);
     };
 
+    const removeIngredient = (index: number) => {
+        const item = ingredients[index];
+        if (item.quantidade <= 0) return;
+
+        const newIngredients = [...ingredients];
+        newIngredients[index].quantidade -= item.porcao;
+        setIngredients(newIngredients);
+        setBudget(prev => prev + item.preco);
+    };
+
     const anyBought = ingredients.some((ing) => ing.quantidade > 0);
 
     const handleNextStep = () => {
@@ -333,16 +343,30 @@ export default function TelaDeJogo() {
                                                     </div>
                                                 </div>
 
-                                                <button
-                                                    onClick={() => buyIngredient(index)}
-                                                    className={`w-full px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${budget >= item.preco
-                                                        ? "bg-vibratingBlue text-white hover:scale-105 active:bg-blue-800"
-                                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                        }`}
-                                                    disabled={budget < item.preco}
-                                                >
-                                                    {budget >= item.preco ? "+ COMPRAR" : "SALDO INSUF."}
-                                                </button>
+                                                {/* Controles de compra e venda */}
+                                                <div className="flex items-center justify-between gap-2 mt-2">
+                                                    <button
+                                                        onClick={() => removeIngredient(index)}
+                                                        disabled={item.quantidade <= 0}
+                                                        className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${item.quantidade > 0
+                                                                ? "bg-red-500 text-white hover:bg-red-600"
+                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                            }`}
+                                                    >
+                                                        -
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => buyIngredient(index)}
+                                                        disabled={budget < item.preco}
+                                                        className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${budget >= item.preco
+                                                                ? "bg-green-500 text-white hover:bg-green-600"
+                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                            }`}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
