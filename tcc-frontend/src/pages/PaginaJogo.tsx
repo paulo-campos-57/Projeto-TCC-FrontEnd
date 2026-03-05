@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import Header from "../components/Header";
 import L from "leaflet";
+import type { BairroMapa } from "../types/bairro-mapa.interface";
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
+
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -22,14 +24,16 @@ const center: L.LatLngExpression = [-8.05, -34.9];
 export default function PaginaJogo() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { tempoDeJogo } = location.state || {};
+    const { tempoDeJogo } = (location.state as { tempoDeJogo?: string }) || {};
+
     const [showPopup, setShowPopup] = useState(true);
-    const [selectedNeighborhood, setSelectedNeighborhood] = useState<any>(null);
+
+    const [selectedNeighborhood, setSelectedNeighborhood] = useState<BairroMapa | null>(null);
 
     const handleContinue = () => setShowPopup(false);
     const handleGoBack = () => navigate('/JogoConvidado');
 
-    const handleNeighborhoodSelect = (bairro: any) => {
+    const handleNeighborhoodSelect = (bairro: BairroMapa) => {
         setSelectedNeighborhood(bairro);
     };
 
@@ -44,7 +48,7 @@ export default function PaginaJogo() {
         }
     };
 
-    const bairros = [
+    const bairros: BairroMapa[] = [
         {
             nome: "Casa Forte",
             pos: [-8.0305, -34.9235],
@@ -170,7 +174,6 @@ export default function PaginaJogo() {
                     </div>
                 )}
             </div>
-
             {showPopup && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50">
                     <div className="bg-white rounded-2xl shadow-xl p-10 w-[90%] max-w-lg text-center flex flex-col gap-6">

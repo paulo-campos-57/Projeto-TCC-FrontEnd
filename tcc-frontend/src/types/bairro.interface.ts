@@ -1,3 +1,5 @@
+// Interface de bairro para jogo
+
 export interface Bairro {
     nome: string;
     preferenciaPreco: number;
