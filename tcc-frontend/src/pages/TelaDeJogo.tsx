@@ -27,6 +27,21 @@ export default function TelaDeJogo() {
         { nome: "Leite Condensado", preco: 12, quantidade: 0, porcao: 5 },
     ]);
 
+    // receita
+    const [receita, setReceita] = useState<{ [key: string]: number }>({
+        "Goma de Tapioca": 1,
+        "Queijo Coalho": 0,
+        "Coco Ralado": 0,
+        "Leite Condensado": 0
+    });
+
+    const alterarReceita = (nome: string, delta: number) => {
+        setReceita(prev => ({
+            ...prev,
+            [nome]: Math.max(0, (prev[nome] || 0) + delta)
+        }));
+    };
+
     // tempo e dias
     const [diaAtual, setDiaAtual] = useState(1);
     const [tempoRestante, setTempoRestante] = useState(10); // segundos por dia
@@ -87,11 +102,14 @@ export default function TelaDeJogo() {
                 return;
             }
 
-            // LÓGICA DE ESTOQUE E VENDA
             setIngredients((prevIngredients) => {
-                const temEstoque = prevIngredients.every(ing => ing.quantidade > 0);
+                const temEstoqueParaTudo = prevIngredients.every(ing => {
+                    const qtdNecessaria = receita[ing.nome] || 0;
+                    if (qtdNecessaria === 0) return true;
+                    return ing.quantidade >= qtdNecessaria;
+                });
 
-                if (!temEstoque) {
+                if (!temEstoqueParaTudo) {
                     if (intervaloClientes.current) {
                         clearInterval(intervaloClientes.current);
                         intervaloClientes.current = null;
@@ -102,23 +120,19 @@ export default function TelaDeJogo() {
                     return prevIngredients;
                 }
 
-                const novosIngredientes = prevIngredients.map(ing => ({
+                return prevIngredients.map(ing => ({
                     ...ing,
-                    quantidade: ing.quantidade - 1
+                    quantidade: ing.quantidade - (receita[ing.nome] || 0)
                 }));
-
-                // processa a venda financeira e visual
-                setBudget(prevBudget => prevBudget + precoTapioca);
-                const novoCliente = gerarCliente(bairro || "Centro");
-
-                setClientesHoje((prev) => prev + 1);
-                setClientes((prev) => [...prev, novoCliente]);
-                count++;
-
-                return novosIngredientes;
             });
 
-        }, 800); // Intervalo entre clientes (em milissegundos)
+            setBudget(prev => prev + precoTapioca);
+            const novoCliente = gerarCliente(bairro || "Centro");
+            setClientesHoje((prev) => prev + 1);
+            setClientes((prev) => [...prev, novoCliente]);
+            count++;
+
+        }, 800); // intervalo em milissegundos entre clientes
     };
 
 
@@ -170,7 +184,6 @@ export default function TelaDeJogo() {
         setDiaAtual((prev) => prev + 1);
         setTempoRestante(10);
         setIsTimerRunning(true);
-        setTimeout(() => gerarFluxoDeClientes(), 100);
         gerarFluxoDeClientes();
     };
 
@@ -208,7 +221,7 @@ export default function TelaDeJogo() {
             alert("Compre pelo menos um ingrediente antes de continuar!");
             return;
         }
-        setPopupStep(2);
+        setPopupStep(prev => prev + 1);
     }
 
     const handleStartGame = () => {
@@ -219,7 +232,6 @@ export default function TelaDeJogo() {
 
         setShowPopup(false);
         setIsTimerRunning(true);
-        setTimeout(() => gerarFluxoDeClientes(), 100);
         gerarFluxoDeClientes();
     }
 
@@ -349,8 +361,8 @@ export default function TelaDeJogo() {
                                                         onClick={() => removeIngredient(index)}
                                                         disabled={item.quantidade <= 0}
                                                         className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${item.quantidade > 0
-                                                                ? "bg-red-500 text-white hover:bg-red-600"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                            ? "bg-red-500 text-white hover:bg-red-600"
+                                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                                             }`}
                                                     >
                                                         -
@@ -360,8 +372,8 @@ export default function TelaDeJogo() {
                                                         onClick={() => buyIngredient(index)}
                                                         disabled={budget < item.preco}
                                                         className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${budget >= item.preco
-                                                                ? "bg-green-500 text-white hover:bg-green-600"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                            ? "bg-green-500 text-white hover:bg-green-600"
+                                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                                             }`}
                                                     >
                                                         +
@@ -375,15 +387,82 @@ export default function TelaDeJogo() {
                                     onClick={handleNextStep}
                                     className="mt-6 px-6 py-3 bg-vibratingBlue text-white rounded-xl font-bold hover:bg-blue-700 transition"
                                 >
-                                    Definir Preço →
+                                    Definir Receita →
                                 </button>
                             </>
                         )}
 
-                        {/* ETAPA 2: DEFINIÇÃO DE PREÇO */}
+                        {/* ETAPA 2: RECEITA */}
                         {popupStep === 2 && (
+                            <div className="flex flex-col h-full">
+                                <h2 className="text-2xl text-center mb-2 font-bold">📋 Fase 2: Sua Receita</h2>
+                                <p className="text-center text-gray-500 text-[10px] mb-4 font-pressStart">
+                                    Quantas porções de cada item vai em cada tapioca?
+                                </p>
+
+                                <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+                                    {ingredients
+                                        .filter(ing => ing.quantidade > 0)
+                                        .map((ing, index) => (
+                                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl border-2 border-dashed border-gray-300">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-sm">{ing.nome}</span>
+                                                    <span className="text-[10px] text-blue-600 font-bold">
+                                                        Estoque Total: {ing.quantidade} unidades
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => alterarReceita(ing.nome, -1)}
+                                                        className="w-8 h-8 bg-red-400 text-white rounded-lg font-bold hover:bg-red-500"
+                                                    >-</button>
+
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="font-bold text-lg leading-none">
+                                                            {receita[ing.nome] || 0}
+                                                        </span>
+                                                        <span className="text-[8px] uppercase">na tapioca</span>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => alterarReceita(ing.nome, 1)}
+                                                        disabled={(receita[ing.nome] || 0) >= ing.quantidade}
+                                                        className={`w-8 h-8 rounded-lg font-bold ${(receita[ing.nome] || 0) >= ing.quantidade
+                                                            ? "bg-gray-300 cursor-not-allowed"
+                                                            : "bg-green-400 text-white hover:bg-green-500"
+                                                            }`}
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    }
+                                    {ingredients.filter(ing => ing.quantidade > 0).length === 0 && (
+                                        <p className="text-center text-red-500 mt-10">Você não comprou ingredientes!</p>
+                                    )}
+                                </div>
+
+                                <div className="mt-6 flex items-center justify-center gap-4">
+                                    <button
+                                        onClick={() => setPopupStep(1)}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs"
+                                    >
+                                        Voltar
+                                    </button>
+                                    <button
+                                        onClick={() => setPopupStep(3)} // Avança para o preço (Step 3)
+                                        className="px-8 py-3 bg-vibratingBlue text-white rounded-xl font-bold hover:bg-blue-700 transition text-xs"
+                                    >
+                                        Definir Preço →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ETAPA 3: DEFINIÇÃO DE PREÇO */}
+                        {popupStep === 3 && (
                             <div className="flex flex-col items-center justify-center flex-1">
-                                <h2 className="text-2xl text-center mb-6 font-bold">💰 Fase 2: Precificação</h2>
+                                <h2 className="text-2xl text-center mb-6 font-bold">💰 Fase 3: Precificação</h2>
                                 <p className="text-center mb-8 text-gray-600">
                                     Por quanto você vai vender cada tapioca no bairro <strong>{bairro}</strong>?
                                 </p>
@@ -407,7 +486,7 @@ export default function TelaDeJogo() {
 
                                 <div className="flex gap-4">
                                     <button
-                                        onClick={() => setPopupStep(1)}
+                                        onClick={() => setPopupStep(2)}
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold"
                                     >
                                         Voltar
