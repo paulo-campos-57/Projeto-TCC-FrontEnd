@@ -181,9 +181,15 @@ export default function TelaDeJogo() {
     // avançar para o próximo dia
     const nextDay = () => {
         setShowEndOfDayPopup(false);
+
+        setPopupStep(1);
+        setShowPopup(true);
+
         setDiaAtual((prev) => prev + 1);
+
         setTempoRestante(10);
-        setIsTimerRunning(true);
+        setIsTimerRunning(false);
+
         gerarFluxoDeClientes();
     };
 
