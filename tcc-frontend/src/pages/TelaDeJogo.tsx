@@ -18,6 +18,9 @@ export default function TelaDeJogo() {
     // precificação e compras
     const [popupStep, setPopupStep] = useState(1);
     const [precoTapioca, setPrecoTapioca] = useState(15);
+    // estatística do dia
+    const [gastoHoje, setGastoHoje] = useState(0);
+    const [faturamentoHoje, setFaturamentoHoje] = useState(0);
 
     // ingredientes
     const [ingredients, setIngredients] = useState([
@@ -127,6 +130,7 @@ export default function TelaDeJogo() {
             });
 
             setBudget(prev => prev + precoTapioca);
+            setFaturamentoHoje(prev => prev + precoTapioca);
             const novoCliente = gerarCliente(bairro || "Centro");
             setClientesHoje((prev) => prev + 1);
             setClientes((prev) => [...prev, novoCliente]);
@@ -182,6 +186,9 @@ export default function TelaDeJogo() {
     const nextDay = () => {
         setShowEndOfDayPopup(false);
 
+        setGastoHoje(0);
+        setFaturamentoHoje(0);
+
         setPopupStep(1);
         setShowPopup(true);
 
@@ -208,6 +215,8 @@ export default function TelaDeJogo() {
 
         setIngredients(newIngredients);
         setBudget(budget - item.preco);
+
+        setGastoHoje(prev => prev + item.preco);
     };
 
     const removeIngredient = (index: number) => {
@@ -218,6 +227,7 @@ export default function TelaDeJogo() {
         newIngredients[index].quantidade -= item.porcao;
         setIngredients(newIngredients);
         setBudget(prev => prev + item.preco);
+        setGastoHoje(prev => prev - item.preco);
     };
 
     const anyBought = ingredients.some((ing) => ing.quantidade > 0);
@@ -537,15 +547,34 @@ export default function TelaDeJogo() {
 
             {/* Popup de fim de dia */}
             {showEndOfDayPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
-                        <h2 className="text-2xl mb-4">🌙 Fim do dia {diaAtual}</h2>
-                        <p className="mb-6">Você completou o dia! Pronto para o próximo?</p>
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 text-black">
+                    <div className="bg-white rounded-3xl shadow-2xl p-8 text-center w-full max-w-sm border-4 border-vibratingBlue">
+                        <h2 className="text-2xl mb-6 font-bold uppercase tracking-tighter">🌙 Balanço do Dia {diaAtual}</h2>
+
+                        <div className="space-y-4 mb-8">
+                            <div className="flex justify-between items-center border-b pb-2">
+                                <span className="text-gray-600 text-xs">Faturamento:</span>
+                                <span className="text-green-600 font-bold">R$ {faturamentoHoje}</span>
+                            </div>
+
+                            <div className="flex justify-between items-center border-b pb-2">
+                                <span className="text-gray-600 text-xs">Gastos (Estoque):</span>
+                                <span className="text-red-500 font-bold">R$ {gastoHoje}</span>
+                            </div>
+
+                            <div className="flex justify-between items-center bg-gray-100 p-3 rounded-xl">
+                                <span className="font-bold text-sm">Lucro Líquido:</span>
+                                <span className={`text-lg font-bold ${faturamentoHoje - gastoHoje >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                                    R$ {faturamentoHoje - gastoHoje}
+                                </span>
+                            </div>
+                        </div>
+
                         <button
                             onClick={nextDay}
-                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold"
+                            className="w-full px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold shadow-lg transition-transform active:scale-95"
                         >
-                            Próximo Dia
+                            PRÓXIMO DIA →
                         </button>
                     </div>
                 </div>
