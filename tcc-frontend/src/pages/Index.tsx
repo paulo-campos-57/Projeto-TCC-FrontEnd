@@ -37,18 +37,19 @@ export default function Index() {
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                const data = await response.json();
-                console.log("Resposta do login:", data);
+                console.log("Token recebido:", data.token);
 
                 toast.success(`Bem-vindo, ${data.User?.nome}!`, { id: loadingToast });
 
+                localStorage.setItem("token", JSON.stringify(data.token));
                 localStorage.setItem("user", JSON.stringify(data.User));
 
                 setTimeout(() => navigate("/JogoCadastro"), 2000);
             } else {
-                const errorData = await response.json().catch(() => ({}));
-                toast.error(errorData.error || "Erro ao realizar login", { id: loadingToast });
+                toast.error(data.error || "Erro ao realizar login", { id: loadingToast });
             }
         } catch (err) {
             console.error("Erro de rede:", err);
