@@ -48,6 +48,7 @@ export default function Cadastro() {
             }
         } catch (err) {
             toast.error("Não foi possível conectar ao servidor", { id: loadingToast });
+            console.log("Erro no cadastro:", err);
         }
     };
 
