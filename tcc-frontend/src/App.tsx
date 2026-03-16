@@ -4,6 +4,7 @@ import Cadastro from './pages/Cadastro'
 import JogoConvidado from './pages/JogoConvidado'
 import PaginaJogo from './pages/PaginaJogo'
 import TelaDeJogo from './pages/TelaDeJogo'
+import JogoCadastro from './pages/JogoCadastro'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/JogoConvidado" element={< JogoConvidado />} />
         <Route path="/PaginaJogo" element={< PaginaJogo />} />
         <Route path="/TelaDeJogo" element={< TelaDeJogo />} />
+        <Route path="/JogoCadastro" element={< JogoCadastro />} />
       </Routes>
     </>
   )
