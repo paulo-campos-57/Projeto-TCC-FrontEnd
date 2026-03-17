@@ -47,7 +47,7 @@ export default function Index() {
                 localStorage.setItem("token", JSON.stringify(data.token));
                 localStorage.setItem("user", JSON.stringify(data.User));
 
-                setTimeout(() => navigate("/JogoCadastro"), 2000);
+                setTimeout(() => navigate("/UsuarioHome"), 2000);
             } else {
                 toast.error(data.error || "Erro ao realizar login", { id: loadingToast });
             }

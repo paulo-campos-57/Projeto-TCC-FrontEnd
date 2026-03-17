@@ -1,21 +1,8 @@
-import toast from "react-hot-toast";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 
 export default function JogoCadastro() {
     const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        fetch("http://127.0.0.1:5000/logout", {
-            method: "POST"
-        });
-
-        toast.success("Logout realizado com sucesso!");
-        setTimeout(() => navigate("/"), 2000);
-    }
 
     const handleGameMode = (tempo: string) => {
         navigate('/PaginaJogo', { state: { tempoDeJogo: tempo } });
@@ -60,11 +47,11 @@ export default function JogoCadastro() {
                                 Jogo livre
                             </button>
                         </div>
+                        <button className="w-1/6 h-1/8 bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700"
+                            onClick={() => navigate("/UsuarioHome")}>
+                            Volar
+                        </button>
                     </div>
-                    <button className="w-1/6 h-1/8 bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700"
-                        onClick={handleLogout}>
-                        Logout
-                    </button>
                 </div>
             </div>
         </>
