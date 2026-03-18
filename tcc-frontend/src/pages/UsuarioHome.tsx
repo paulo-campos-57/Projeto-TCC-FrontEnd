@@ -19,7 +19,7 @@ export default function UsuarioHome() {
 
     return (
         <>
-            <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhit">
+            <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite">
                 <Header />
                 <div className="flex flex-1 flex-col gap-8 justify-center items-center">
                     <h1 className="text-4xl text-textBlack font-bold text-center mt-10">
@@ -38,7 +38,7 @@ export default function UsuarioHome() {
                             </button>
                             <button
                                 className="w-full bg-goldenYellow text-primaryWhite font-bold py-3 rounded-lg hover:bg-yellow-500 transition duration-200"
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/Perfil")}
                             >
                                 Perfil
                             </button>

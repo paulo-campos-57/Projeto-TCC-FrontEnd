@@ -6,6 +6,7 @@ import PaginaJogo from './pages/PaginaJogo'
 import TelaDeJogo from './pages/TelaDeJogo'
 import JogoCadastro from './pages/JogoCadastro'
 import UsuarioHome from './pages/UsuarioHome'
+import Perfil from './pages/Perfil'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/TelaDeJogo" element={< TelaDeJogo />} />
         <Route path="/UsuarioHome" element={< UsuarioHome />} />
         <Route path="/JogoCadastro" element={< JogoCadastro />} />
+        <Route path="/Perfil" element={< Perfil />} />
       </Routes>
     </>
   )
