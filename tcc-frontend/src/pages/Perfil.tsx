@@ -73,6 +73,39 @@ export default function Perfil() {
         }
     };
 
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
+
+        if (!confirmDelete) return;
+
+        const token = localStorage.getItem("token")?.replace(/"/g, "");
+        const loadingToast = toast.loading("Excluindo conta...");
+
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/delete/${user?.id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                toast.success("Conta excluída com sucesso.", { id: loadingToast });
+
+                localStorage.clear();
+
+                setTimeout(() => navigate("/"), 2000);
+            } else {
+                const data = await response.json();
+                toast.error(data.error || "Erro ao excluir conta", { id: loadingToast });
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Erro de rede ao tentar excluir", { id: loadingToast });
+        }
+    };
+
     return (
         <>
             <Toaster />
@@ -122,6 +155,16 @@ export default function Perfil() {
                                                 <p className="text-lg break-words">{user?.email}</p>
                                             )}
                                         </div>
+
+                                        {!isEditing && (
+                                            <button
+                                                onClick={handleDelete}
+                                                className="w-full bg-crimsonRed text-primaryWhite py-3 rounded-lg text-xs flex items-center justify-center gap-2 hover:bg-red-700 transition"
+                                            >
+                                                <X size={16} />
+                                                Excluir usuário
+                                            </button>
+                                        )}
 
                                         {isEditing && (
                                             <button

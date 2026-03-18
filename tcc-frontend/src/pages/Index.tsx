@@ -49,7 +49,7 @@ export default function Index() {
 
                 setTimeout(() => navigate("/UsuarioHome"), 2000);
             } else {
-                toast.error(data.error || "Erro ao realizar login", { id: loadingToast });
+                toast.error(data.error || "Falha no login", { id: loadingToast });
             }
         } catch (err) {
             console.error("Erro de rede:", err);
