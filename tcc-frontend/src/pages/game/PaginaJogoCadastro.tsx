@@ -62,15 +62,34 @@ export default function PaginaJogoCadastro() {
     const handleContinue = () => setShowPopup(false);
     const handleGoBack = () => navigate('/JogoCadastro');
 
-    const handleStartGame = () => {
-        if (selectedNeighborhood) {
-            navigate('/TelaDeJogo', {
-                state: {
+    const handleStartGame = async () => {
+        if (!selectedNeighborhood) return;
+
+        const loadingToast = toast.loading("Preparando sua barraca...");
+
+        try {
+            const response = await fetch("http://127.0.0.1:5000/bairro/iniciar_jogo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     bairroId: selectedNeighborhood.id,
-                    nomeBairro: selectedNeighborhood.nome,
-                    tempoDeJogo
-                }
+                    tempoDeJogo: tempoDeJogo
+                })
             });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success("Tudo pronto! Boa sorte!", { id: loadingToast });
+
+                navigate(data.redirect_url, {
+                    state: { config: data.game_config }
+                });
+            } else {
+                toast.error(data.error || "Erro ao iniciar jogo", { id: loadingToast });
+            }
+        } catch (error) {
+            toast.error("Erro de conexão com o servidor", { id: loadingToast });
         }
     };
 
