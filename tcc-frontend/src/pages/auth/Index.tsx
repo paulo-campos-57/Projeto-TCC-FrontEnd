@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import NavItem from "../components/NavItem";
-import Footer from "../components/Footer";
+import Header from "../../components/Header";
+import NavItem from "../../components/NavItem";
+import Footer from "../../components/Footer";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function Index() {

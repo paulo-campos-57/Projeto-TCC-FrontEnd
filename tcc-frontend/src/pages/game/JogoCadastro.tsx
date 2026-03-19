@@ -1,11 +1,28 @@
-import Header from "../components/Header";
+import toast from "react-hot-toast";
+import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
 
 export default function JogoCadastro() {
     const navigate = useNavigate();
 
-    const handleGameMode = (tempo: string) => {
-        navigate('/PaginaJogo', { state: { tempoDeJogo: tempo } });
+    const handleGameMode = async (tempo: string) => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/bairro/iniciar_sessao", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tempo })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                navigate(data.redirect_to, { state: { tempoDeJogo: data.tempoDeJogo } });
+            } else {
+                toast.error(data.error);
+            }
+        } catch (err) {
+            toast.error("Erro ao falar com o servidor");
+        }
     }
 
     return (

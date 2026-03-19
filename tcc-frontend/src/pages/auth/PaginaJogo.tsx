@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Tooltip } from "react-leaflet";
-import Header from "../components/Header";
+import Header from "../../components/Header";
 import L from "leaflet";
-import type { BairroMapa } from "../types/bairro-mapa.interface";
+import type { BairroMapa } from "../../types/bairro-mapa.interface";
 
 const defaultIcon = L.icon({
     iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",

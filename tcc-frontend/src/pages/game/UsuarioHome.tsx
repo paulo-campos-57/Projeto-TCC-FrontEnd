@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../../components/Header";
 import { toast } from "react-hot-toast/headless";
 
 export default function UsuarioHome() {

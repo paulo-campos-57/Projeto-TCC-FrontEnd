@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import Header from "../components/Header";
-import type { Cliente } from "../types/cliente.interface";
-import { criarBairroComPreferencias } from "../services/bairro.service";
-import { criarPedidoPorPreferencia } from "../services/pedido.service";
+import Header from "../../components/Header";
+import type { Cliente } from "../../types/cliente.interface";
+import { criarBairroComPreferencias } from "../../services/bairro.service";
+import { criarPedidoPorPreferencia } from "../../services/pedido.service";
 
 export default function TelaDeJogo() {
     const location = useLocation();
