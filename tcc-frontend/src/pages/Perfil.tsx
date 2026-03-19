@@ -25,7 +25,7 @@ export default function Perfil() {
         if (!token) { navigate("/"); return; }
 
         try {
-            const response = await fetch("http://127.0.0.1:5000/me", {
+            const response = await fetch("http://127.0.0.1:5000/user/me", {
                 method: "GET",
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -49,7 +49,7 @@ export default function Perfil() {
         const loadingToast = toast.loading("Salvando alterações...");
 
         try {
-            const response = await fetch("http://127.0.0.1:5000/update_me", {
+            const response = await fetch("http://127.0.0.1:5000/user/update_me", {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -82,7 +82,7 @@ export default function Perfil() {
         const loadingToast = toast.loading("Excluindo conta...");
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/delete/${user?.id}`, {
+            const response = await fetch(`http://127.0.0.1:5000/user/delete/${user?.id}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,

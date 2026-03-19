@@ -9,7 +9,7 @@ export default function UsuarioHome() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
-        fetch("http://127.0.0.1:5000/logout", {
+        fetch("http://127.0.0.1:5000/user/logout", {
             method: "POST"
         });
 
