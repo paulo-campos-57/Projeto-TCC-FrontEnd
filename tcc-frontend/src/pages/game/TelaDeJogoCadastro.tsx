@@ -36,6 +36,7 @@ function limiteDias(tempo: string): number {
 }
 
 const DURACAO_DIA = 30;
+const INTERVALO_CLIENTE_MS = 800;
 
 export default function TelaDeJogoCadastro() {
     const location = useLocation();
@@ -49,6 +50,7 @@ export default function TelaDeJogoCadastro() {
 
     const [popupStep, setPopupStep] = useState<1 | 2 | 3>(1);
     const [showSetupPopup, setShowSetupPopup] = useState(true);
+    const [showEstoqueEsgotado, setShowEstoqueEsgotado] = useState(false);
     const [showEndOfDayPopup, setShowEndOfDayPopup] = useState(false);
     const [showGameOverPopup, setShowGameOverPopup] = useState(false);
     const [isProcessando, setIsProcessando] = useState(false);
@@ -57,20 +59,33 @@ export default function TelaDeJogoCadastro() {
     const [gastoHoje, setGastoHoje] = useState(0);
 
     const [tempoRestante, setTempoRestante] = useState(DURACAO_DIA);
-    const [isRunning, setIsRunning] = useState(false);
+    const [, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
-    const [clientesAnimados, setClientesAnimados] = useState(0);
-    const animRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [clientesExibidos, setClientesExibidos] = useState(0);
+    const [estoqueLocal, setEstoqueLocal] = useState<Record<string, number>>({});
+    const [receitaLocal, setReceitaLocal] = useState<Record<string, number>>({});
+
+    const resultadoRef = useRef<ResultadoDia | null>(null);
+    const isPausedRef = useRef(isPaused);
+    const clientesExibRef = useRef(0);
+    const estoqueLocalRef = useRef<Record<string, number>>({});
+    const receitaLocalRef = useRef<Record<string, number>>({});
+
+    useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
+    useEffect(() => { clientesExibRef.current = clientesExibidos; }, [clientesExibidos]);
+    useEffect(() => { estoqueLocalRef.current = estoqueLocal; }, [estoqueLocal]);
+    useEffect(() => { receitaLocalRef.current = receitaLocal; }, [receitaLocal]);
+
+    const clienteIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     if (!config) {
         return (
             <div className="h-screen flex flex-col items-center justify-center font-pressStart gap-4">
                 <p className="text-sm">Erro: sessão não encontrada.</p>
-                <button
-                    onClick={() => navigate("/JogoCadastro")}
-                    className="bg-vibratingBlue text-white px-6 py-2 rounded-lg text-xs"
-                >
+                <button onClick={() => navigate("/JogoCadastro")}
+                    className="bg-vibratingBlue text-white px-6 py-2 rounded-lg text-xs">
                     Voltar
                 </button>
             </div>
@@ -89,132 +104,91 @@ export default function TelaDeJogoCadastro() {
                 setCatalogo(resp.catalogo);
                 toast.dismiss(t);
             } catch (e) {
-                toast.error(
-                    e instanceof Error ? e.message : "Erro ao criar sessão.",
-                    { id: t }
-                );
+                toast.error(e instanceof Error ? e.message : "Erro ao criar sessão.", { id: t });
             } finally {
                 setLoading(false);
             }
         })();
     }, []);
 
-    useEffect(() => {
-        if (!isRunning || isPaused) return;
-        const timer = setInterval(() => {
+    const pararTudo = () => {
+        if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+        }
+        if (clienteIntervalRef.current) {
+            clearInterval(clienteIntervalRef.current);
+            clienteIntervalRef.current = null;
+        }
+        setIsRunning(false);
+    };
+
+    const abrirPopupFimDia = (snapshot: SessaoSnapshot) => {
+        if (snapshot.dia_atual >= totalDias) {
+            setShowGameOverPopup(true);
+        } else {
+            setShowEndOfDayPopup(true);
+        }
+    };
+
+    const iniciarTimer = () => {
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = setInterval(() => {
+            if (isPausedRef.current) return;
             setTempoRestante(prev => {
                 if (prev <= 1) {
-                    clearInterval(timer);
-                    setIsRunning(false);
+                    pararTudo();
+                    if (resultadoRef.current) {
+                        setClientesExibidos(resultadoRef.current.clientes_totais);
+                        abrirPopupFimDia(resultadoRef.current.sessao);
+                    }
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
-        return () => clearInterval(timer);
-    }, [isRunning, isPaused]);
+        setIsRunning(true);
+    };
 
-    useEffect(() => {
-        if (!resultadoDia) return;
-        if (animRef.current) clearInterval(animRef.current);
-        setClientesAnimados(0);
-        const total = resultadoDia.clientes_totais;
-        const step = Math.ceil(total / DURACAO_DIA);
-        animRef.current = setInterval(() => {
-            setClientesAnimados(prev => {
-                const next = prev + step;
-                if (next >= total) {
-                    clearInterval(animRef.current!);
-                    animRef.current = null;
-                    return total;
+    const iniciarAnimacaoClientes = (
+        totalAtendidos: number,
+        _estoqueInicial: Record<string, number>,
+        receita: Record<string, number>,
+        esgotado: boolean,
+        _snapshot: SessaoSnapshot,
+    ) => {
+        if (clienteIntervalRef.current) clearInterval(clienteIntervalRef.current);
+
+        clienteIntervalRef.current = setInterval(() => {
+            if (isPausedRef.current) return;
+
+            const atual = clientesExibRef.current;
+
+            if (atual >= totalAtendidos) {
+                clearInterval(clienteIntervalRef.current!);
+                clienteIntervalRef.current = null;
+
+                if (esgotado) {
+                    pararTudo();
+                    setShowEstoqueEsgotado(true);
                 }
-                return next;
-            });
-        }, 1000);
-        return () => { if (animRef.current) clearInterval(animRef.current); };
-    }, [resultadoDia]);
-
-    useEffect(() => {
-        if (tempoRestante === 0 && !isRunning && resultadoDia && !showSetupPopup) {
-            if (animRef.current) {
-                clearInterval(animRef.current);
-                setClientesAnimados(resultadoDia.clientes_totais);
+                return;
             }
-            if ((sessao?.dia_atual ?? 1) >= totalDias) {
-                setShowGameOverPopup(true);
-            } else {
-                setShowEndOfDayPopup(true);
-            }
-        }
-    }, [tempoRestante, isRunning]);
 
-    const handleComprar = async (nome: string) => {
-        if (!sessaoId) return;
-        try {
-            const r = await comprarIngrediente(sessaoId, nome);
-            setSessao(prev => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    budget: r.budget,
-                    gasto_hoje: r.gasto_hoje,
-                    estoque: prev.estoque.map(i =>
-                        i.nome === nome ? { ...i, quantidade: r.quantidade } : i
-                    ),
-                };
+            const proximo = atual + 1;
+            setClientesExibidos(proximo);
+            clientesExibRef.current = proximo;
+
+            const novoEstoque = { ...estoqueLocalRef.current };
+            Object.keys(receita).forEach(nome => {
+                if ((receita[nome] ?? 0) > 0) {
+                    novoEstoque[nome] = Math.max(0, (novoEstoque[nome] ?? 0) - (receita[nome] ?? 0));
+                }
             });
-            setGastoHoje(r.gasto_hoje);
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Erro ao comprar.");
-        }
-    };
+            setEstoqueLocal(novoEstoque);
+            estoqueLocalRef.current = novoEstoque;
 
-    const handleDevolver = async (nome: string) => {
-        if (!sessaoId) return;
-        try {
-            const r = await devolverIngrediente(sessaoId, nome);
-            setSessao(prev => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    budget: r.budget,
-                    gasto_hoje: r.gasto_hoje,
-                    estoque: prev.estoque.map(i =>
-                        i.nome === nome ? { ...i, quantidade: r.quantidade } : i
-                    ),
-                };
-            });
-            setGastoHoje(r.gasto_hoje);
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Erro ao devolver.");
-        }
-    };
-
-    const handleReceita = async (nome: string, delta: number) => {
-        if (!sessaoId || !sessao) return;
-        const novaReceita = {
-            ...sessao.receita,
-            [nome]: Math.max(0, (sessao.receita[nome] ?? 0) + delta),
-        };
-        try {
-            const r = await atualizarReceita(sessaoId, novaReceita);
-            setSessao(prev => prev
-                ? { ...prev, receita: novaReceita, tapiocas_possiveis: r.tapiocas_possiveis }
-                : prev
-            );
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Erro ao atualizar receita.");
-        }
-    };
-
-    const handlePreco = async (valor: number) => {
-        if (!sessaoId) return;
-        try {
-            await definirPreco(sessaoId, valor);
-            setSessao(prev => prev ? { ...prev, preco_tapioca: valor } : prev);
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Erro ao definir preço.");
-        }
+        }, INTERVALO_CLIENTE_MS);
     };
 
     const handleStartGame = async () => {
@@ -225,23 +199,48 @@ export default function TelaDeJogoCadastro() {
         }
 
         setIsProcessando(true);
-        const t = toast.loading("Processando o dia...");
+        const t = toast.loading("Abrindo barraca...");
         try {
             const resultado = await processarDia(sessaoId);
             toast.dismiss(t);
+
+            resultadoRef.current = resultado;
             setResultadoDia(resultado);
             setSessao(resultado.sessao);
             setGastoHoje(resultado.sessao.gasto_hoje);
+
+            const estoqueInicial: Record<string, number> = {};
+            sessao.estoque.forEach(i => { estoqueInicial[i.nome] = i.quantidade; });
+            setEstoqueLocal(estoqueInicial);
+            estoqueLocalRef.current = estoqueInicial;
+            setReceitaLocal(sessao.receita);
+            receitaLocalRef.current = sessao.receita;
+
+            setClientesExibidos(0);
+            clientesExibRef.current = 0;
+
             setShowSetupPopup(false);
             setTempoRestante(DURACAO_DIA);
-            setIsRunning(true);
-        } catch (e) {
-            toast.error(
-                e instanceof Error ? e.message : "Erro ao processar o dia.",
-                { id: t }
+
+            iniciarTimer();
+            iniciarAnimacaoClientes(
+                resultado.clientes_atendidos,
+                estoqueInicial,
+                sessao.receita,
+                resultado.estoque_esgotado,
+                resultado.sessao,
             );
+        } catch (e) {
+            toast.error(e instanceof Error ? e.message : "Erro ao iniciar.", { id: t });
         } finally {
             setIsProcessando(false);
+        }
+    };
+
+    const handleFecharEstoqueEsgotado = () => {
+        setShowEstoqueEsgotado(false);
+        if (resultadoRef.current) {
+            abrirPopupFimDia(resultadoRef.current.sessao);
         }
     };
 
@@ -253,19 +252,61 @@ export default function TelaDeJogoCadastro() {
             const resp = await avancarDia(sessaoId);
             setSessao(resp.sessao);
             setCatalogo(resp.catalogo);
+            resultadoRef.current = null;
             setResultadoDia(null);
             setGastoHoje(0);
-            setClientesAnimados(0);
+            setClientesExibidos(0);
+            setEstoqueLocal({});
             setTempoRestante(DURACAO_DIA);
             setPopupStep(1);
             setShowSetupPopup(true);
             toast.dismiss(t);
         } catch (e) {
-            toast.error(
-                e instanceof Error ? e.message : "Erro ao avançar dia.",
-                { id: t }
-            );
+            toast.error(e instanceof Error ? e.message : "Erro ao avançar dia.", { id: t });
         }
+    };
+
+    const handleComprar = async (nome: string) => {
+        if (!sessaoId) return;
+        try {
+            const r = await comprarIngrediente(sessaoId, nome);
+            setSessao(prev => prev ? {
+                ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje,
+                estoque: prev.estoque.map(i =>
+                    i.nome === nome ? { ...i, quantidade: r.quantidade } : i),
+            } : prev);
+            setGastoHoje(r.gasto_hoje);
+        } catch (e) { toast.error(e instanceof Error ? e.message : "Erro ao comprar."); }
+    };
+
+    const handleDevolver = async (nome: string) => {
+        if (!sessaoId) return;
+        try {
+            const r = await devolverIngrediente(sessaoId, nome);
+            setSessao(prev => prev ? {
+                ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje,
+                estoque: prev.estoque.map(i =>
+                    i.nome === nome ? { ...i, quantidade: r.quantidade } : i),
+            } : prev);
+            setGastoHoje(r.gasto_hoje);
+        } catch (e) { toast.error(e instanceof Error ? e.message : "Erro ao devolver."); }
+    };
+
+    const handleReceita = async (nome: string, delta: number) => {
+        if (!sessaoId || !sessao) return;
+        const nova = { ...sessao.receita, [nome]: Math.max(0, (sessao.receita[nome] ?? 0) + delta) };
+        try {
+            const r = await atualizarReceita(sessaoId, nova);
+            setSessao(prev => prev ? { ...prev, receita: nova, tapiocas_possiveis: r.tapiocas_possiveis } : prev);
+        } catch (e) { toast.error(e instanceof Error ? e.message : "Erro na receita."); }
+    };
+
+    const handlePreco = async (valor: number) => {
+        if (!sessaoId) return;
+        try {
+            await definirPreco(sessaoId, valor);
+            setSessao(prev => prev ? { ...prev, preco_tapioca: valor } : prev);
+        } catch (e) { toast.error(e instanceof Error ? e.message : "Erro ao definir preço."); }
     };
 
     const togglePause = () => {
@@ -274,10 +315,14 @@ export default function TelaDeJogoCadastro() {
     };
 
     const sat = sessao?.satisfacao ?? 5;
-    const satColor =
-        sat >= 7 ? "text-green-400"
-            : sat >= 4 ? "text-yellow-300"
-                : "text-red-400";
+    const satColor = sat >= 7 ? "text-green-400" : sat >= 4 ? "text-yellow-300" : "text-red-400";
+
+    const estoqueVisivelNaTela = showSetupPopup
+        ? (sessao?.estoque ?? [])
+        : (sessao?.estoque ?? []).map(ing => ({
+            ...ing,
+            quantidade: estoqueLocal[ing.nome] ?? ing.quantidade,
+        }));
 
     if (loading || !sessao) {
         return (
@@ -312,19 +357,15 @@ export default function TelaDeJogoCadastro() {
                                 <span className="text-sm font-bold mt-0.5">{value}</span>
                             </div>
                         ))}
-                        <div className="flex flex-col items-center bg-textBlack
-                            text-primaryWhite px-5 py-2 rounded-xl
-                            border-4 border-goldenYellow shadow-md flex-1 min-w-[110px]">
+                        <div className="flex flex-col items-center bg-textBlack text-primaryWhite
+                            px-5 py-2 rounded-xl border-4 border-goldenYellow shadow-md flex-1 min-w-[110px]">
                             <span className="text-[8px] uppercase tracking-widest opacity-70">Satisfação</span>
                             <span className={`text-sm font-bold mt-0.5 ${satColor}`}>{sat} / 10</span>
                         </div>
                         <button onClick={togglePause}
                             className={`px-5 py-3 rounded-xl border-4 border-goldenYellow
                                 text-xs font-bold shadow-md transition-all
-                                ${isPaused
-                                    ? "bg-lightGreen text-primaryWhite"
-                                    : "bg-crimsonRed text-primaryWhite"
-                                }`}>
+                                ${isPaused ? "bg-lightGreen text-primaryWhite" : "bg-crimsonRed text-primaryWhite"}`}>
                             {isPaused ? "▶ Retomar" : "⏸ Pausar"}
                         </button>
                     </div>
@@ -332,58 +373,61 @@ export default function TelaDeJogoCadastro() {
                     {/* área do jogo */}
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
 
-                        {/* preparação */}
                         <div className="bg-lightGreen/10 border-4 border-dashed border-lightGreen
                             rounded-2xl flex flex-col items-center justify-center p-6 gap-3">
                             <p className="text-xs text-gray-500">Preparação</p>
                             <div className="text-6xl animate-bounce">🍳</div>
                             <p className="text-[9px] text-gray-400">
-                                Preço: <strong className="text-vibratingBlue">
-                                    R$ {sessao.preco_tapioca}
-                                </strong>
-                                &nbsp;·&nbsp;
-                                Estoque: <strong className="text-lightGreen">
-                                    {sessao.tapiocas_possiveis} tapiocas
-                                </strong>
+                                Preço: <strong className="text-vibratingBlue">R$ {sessao.preco_tapioca}</strong>
                             </p>
                             <div className="flex flex-wrap gap-1.5 justify-center">
-                                {sessao.estoque.filter(i => i.quantidade > 0).map(i => (
-                                    <span key={i.nome}
-                                        className="text-[8px] px-2 py-0.5 rounded-full border
-                                            font-bold border-lightGreen text-green-700 bg-green-50">
-                                        {i.nome.split(" ")[0]} ×{i.quantidade}
+                                {estoqueVisivelNaTela.filter(i => i.quantidade > 0).map(i => {
+                                    const porcao = receitaLocal[i.nome] ?? sessao.receita[i.nome] ?? 0;
+                                    const critico = porcao > 0 && i.quantidade <= porcao * 3;
+                                    return (
+                                        <span key={i.nome}
+                                            className={`text-[8px] px-2 py-0.5 rounded-full border font-bold transition-colors
+                                                ${critico
+                                                    ? "border-crimsonRed text-red-700 bg-red-50"
+                                                    : "border-lightGreen text-green-700 bg-green-50"
+                                                }`}>
+                                            {i.nome.split(" ")[0]} ×{i.quantidade}
+                                        </span>
+                                    );
+                                })}
+                                {estoqueVisivelNaTela.every(i => i.quantidade === 0) && (
+                                    <span className="text-[8px] text-crimsonRed font-bold">
+                                        Sem estoque!
                                     </span>
-                                ))}
+                                )}
                             </div>
                         </div>
 
-                        {/* clientes */}
+                        {/*clientes*/}
                         <div className="bg-white border-4 border-vibratingBlue rounded-2xl
                             flex flex-col items-center justify-center p-6 gap-3 shadow-sm">
                             <p className="text-xs">Fila de Clientes</p>
-                            <p className="text-5xl font-bold text-vibratingBlue">{clientesAnimados}</p>
+                            <p className="text-5xl font-bold text-vibratingBlue">{clientesExibidos}</p>
                             <p className="text-[9px] text-gray-400">
-                                de {resultadoDia?.clientes_totais ?? 0} hoje
+                                de {resultadoDia?.clientes_atendidos ?? "?"} previstos hoje
                             </p>
-                            {resultadoDia?.mensagem && (
-                                <div className="mt-2 bg-goldenYellow/20 border border-goldenYellow
-                                    rounded-xl p-3 text-[9px] text-center leading-relaxed max-w-xs">
-                                    {resultadoDia.mensagem}
-                                </div>
+                            {(resultadoDia?.clientes_perdidos ?? 0) > 0 && (
+                                <p className="text-[9px] text-crimsonRed">
+                                    {resultadoDia?.clientes_perdidos} desistiram pelo preço
+                                </p>
                             )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/*POPUP DE SETUP — 3 etapas*/}
+            {/*popup de setup*/}
             {showSetupPopup && (
                 <div className="absolute inset-0 bg-black/60 flex justify-center items-center z-50">
                     <div className="bg-white w-11/12 md:w-3/4 lg:w-[640px]
                         min-h-[520px] rounded-2xl shadow-2xl p-6 flex flex-col
                         border-4 border-vibratingBlue text-textBlack">
 
-                        {/* indicador de progresso */}
                         <div className="flex justify-center gap-2 mb-5">
                             {([1, 2, 3] as const).map(s => (
                                 <div key={s}
@@ -392,7 +436,7 @@ export default function TelaDeJogoCadastro() {
                             ))}
                         </div>
 
-                        {/* ETAPA 1 — estoque */}
+                        {/*ETAPA 1 — estoque*/}
                         {popupStep === 1 && (
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-base text-center font-bold mb-1">Fase 1 — Estoque</h2>
@@ -406,51 +450,35 @@ export default function TelaDeJogoCadastro() {
                                     rounded-xl py-2 text-center text-xs font-bold mb-4">
                                     Orçamento: R$ {sessao.budget.toFixed(2)}
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-3 flex-1">
                                     {catalogo.map(item => {
-                                        const estoqueItem = sessao.estoque.find(
-                                            e => e.nome === item.nome
-                                        );
-                                        const qtd = estoqueItem?.quantidade ?? 0;
+                                        const qtd = sessao.estoque.find(e => e.nome === item.nome)?.quantidade ?? 0;
                                         return (
                                             <div key={item.nome}
-                                                className="border-2 border-gray-100 rounded-xl
-                                                    p-3 bg-gray-50 flex flex-col gap-2">
+                                                className="border-2 border-gray-100 rounded-xl p-3 bg-gray-50 flex flex-col gap-2">
                                                 <p className="text-[10px] font-bold">{item.nome}</p>
                                                 <p className="text-[9px] text-vibratingBlue font-bold">
                                                     Rende {item.porcao} porções
                                                 </p>
                                                 <div className="bg-white rounded-lg px-2 py-1.5
                                                     border border-gray-100 text-[9px] space-y-0.5">
-                                                    <p>Preço: <strong className="text-lightGreen">
-                                                        R$ {item.preco}
-                                                    </strong></p>
+                                                    <p>Preço: <strong className="text-lightGreen">R$ {item.preco}</strong></p>
                                                     <p>Estoque: <strong>{qtd}</strong></p>
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleDevolver(item.nome)}
-                                                        disabled={qtd <= 0}
+                                                    <button onClick={() => handleDevolver(item.nome)} disabled={qtd <= 0}
                                                         className={`flex-1 py-1.5 rounded-lg font-bold text-lg
-                                                            ${qtd > 0
-                                                                ? "bg-crimsonRed text-white hover:opacity-80"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                                            }`}>−</button>
-                                                    <button
-                                                        onClick={() => handleComprar(item.nome)}
-                                                        disabled={sessao.budget < item.preco}
+                                                            ${qtd > 0 ? "bg-crimsonRed text-white hover:opacity-80"
+                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>−</button>
+                                                    <button onClick={() => handleComprar(item.nome)} disabled={sessao.budget < item.preco}
                                                         className={`flex-1 py-1.5 rounded-lg font-bold text-lg
-                                                            ${sessao.budget >= item.preco
-                                                                ? "bg-lightGreen text-white hover:opacity-80"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                                            }`}>+</button>
+                                                            ${sessao.budget >= item.preco ? "bg-lightGreen text-white hover:opacity-80"
+                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>+</button>
                                                 </div>
                                             </div>
                                         );
                                     })}
                                 </div>
-
                                 <button
                                     onClick={() => {
                                         if (!sessao.estoque.some(i => i.quantidade > 0)) {
@@ -466,19 +494,16 @@ export default function TelaDeJogoCadastro() {
                             </div>
                         )}
 
-                        {/* ETAPA 2 — receita */}
+                        {/*ETAPA 2 — receita*/}
                         {popupStep === 2 && (
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-base text-center font-bold mb-1">Fase 2 — Receita</h2>
-                                <p className="text-[9px] text-center text-gray-400 mb-4">
-                                    Porções por tapioca
-                                </p>
+                                <p className="text-[9px] text-center text-gray-400 mb-4">Porções por tapioca</p>
                                 <div className="flex-1 space-y-3 overflow-y-auto pr-1 mb-4">
                                     {sessao.estoque.filter(i => i.quantidade > 0).map(ing => (
                                         <div key={ing.nome}
                                             className="flex items-center justify-between
-                                                bg-gray-50 p-3 rounded-xl border-2
-                                                border-dashed border-gray-200">
+                                                bg-gray-50 p-3 rounded-xl border-2 border-dashed border-gray-200">
                                             <div>
                                                 <p className="text-[10px] font-bold">{ing.nome}</p>
                                                 <p className="text-[9px] text-vibratingBlue font-bold">
@@ -486,24 +511,20 @@ export default function TelaDeJogoCadastro() {
                                                 </p>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <button
-                                                    onClick={() => handleReceita(ing.nome, -1)}
-                                                    className="w-8 h-8 bg-crimsonRed text-white
-                                                        rounded-lg font-bold hover:opacity-80">−</button>
+                                                <button onClick={() => handleReceita(ing.nome, -1)}
+                                                    className="w-8 h-8 bg-crimsonRed text-white rounded-lg font-bold hover:opacity-80">−</button>
                                                 <div className="flex flex-col items-center w-8">
                                                     <span className="font-bold text-lg leading-none">
                                                         {sessao.receita[ing.nome] ?? 0}
                                                     </span>
                                                     <span className="text-[7px] uppercase text-gray-400">un.</span>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleReceita(ing.nome, 1)}
+                                                <button onClick={() => handleReceita(ing.nome, 1)}
                                                     disabled={(sessao.receita[ing.nome] ?? 0) >= ing.quantidade}
                                                     className={`w-8 h-8 rounded-lg font-bold
                                                         ${(sessao.receita[ing.nome] ?? 0) >= ing.quantidade
                                                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                                            : "bg-lightGreen text-white hover:opacity-80"
-                                                        }`}>+</button>
+                                                            : "bg-lightGreen text-white hover:opacity-80"}`}>+</button>
                                             </div>
                                         </div>
                                     ))}
@@ -516,20 +537,18 @@ export default function TelaDeJogoCadastro() {
                                 </div>
                                 <div className="flex gap-3">
                                     <button onClick={() => setPopupStep(1)}
-                                        className="flex-1 py-3 bg-gray-100 text-gray-700
-                                            rounded-xl font-bold text-xs hover:bg-gray-200">
+                                        className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
                                         ← Voltar
                                     </button>
                                     <button onClick={() => setPopupStep(3)}
-                                        className="flex-1 py-3 bg-vibratingBlue text-white
-                                            rounded-xl font-bold text-xs hover:bg-blue-700">
+                                        className="flex-1 py-3 bg-vibratingBlue text-white rounded-xl font-bold text-xs hover:bg-blue-700">
                                         Definir Preço →
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* ETAPA 3 — preço */}
+                        {/*ETAPA 3 — preço*/}
                         {popupStep === 3 && (
                             <div className="flex flex-col items-center justify-center flex-1 gap-4">
                                 <h2 className="text-base text-center font-bold">Fase 3 — Precificação</h2>
@@ -544,20 +563,16 @@ export default function TelaDeJogoCadastro() {
                                     O preço impacta satisfação e quantos clientes compram.
                                 </p>
                                 <div className="flex items-center gap-6 my-2">
-                                    <button
-                                        onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
-                                        className="w-12 h-12 bg-crimsonRed text-white
-                                            rounded-full text-2xl font-bold hover:opacity-80">−</button>
+                                    <button onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
+                                        className="w-12 h-12 bg-crimsonRed text-white rounded-full text-2xl font-bold hover:opacity-80">−</button>
                                     <div className="text-center">
                                         <span className="text-5xl font-bold text-lightGreen">
                                             R$ {sessao.preco_tapioca}
                                         </span>
                                         <p className="text-[8px] text-gray-400 mt-1">por unidade</p>
                                     </div>
-                                    <button
-                                        onClick={() => handlePreco(sessao.preco_tapioca + 1)}
-                                        className="w-12 h-12 bg-lightGreen text-white
-                                            rounded-full text-2xl font-bold hover:opacity-80">+</button>
+                                    <button onClick={() => handlePreco(sessao.preco_tapioca + 1)}
+                                        className="w-12 h-12 bg-lightGreen text-white rounded-full text-2xl font-bold hover:opacity-80">+</button>
                                 </div>
                                 <div className="bg-goldenYellow/10 border border-goldenYellow
                                     rounded-xl py-2 px-4 text-[9px] text-center font-bold">
@@ -568,20 +583,14 @@ export default function TelaDeJogoCadastro() {
                                 </div>
                                 <div className="flex gap-3 mt-2">
                                     <button onClick={() => setPopupStep(2)}
-                                        className="px-6 py-3 bg-gray-100 text-gray-700
-                                            rounded-xl font-bold text-xs hover:bg-gray-200">
+                                        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
                                         ← Voltar
                                     </button>
-                                    <button
-                                        onClick={handleStartGame}
-                                        disabled={isProcessando}
+                                    <button onClick={handleStartGame} disabled={isProcessando}
                                         className={`px-8 py-3 text-white rounded-xl font-bold text-xs
                                             active:scale-95 transition-transform
-                                            ${isProcessando
-                                                ? "bg-gray-400 cursor-not-allowed"
-                                                : "bg-lightGreen hover:opacity-80"
-                                            }`}>
-                                        {isProcessando ? "Processando..." : "Abrir Barraca! 🚀"}
+                                            ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen hover:opacity-80"}`}>
+                                        {isProcessando ? "Abrindo..." : "Abrir Barraca! 🚀"}
                                     </button>
                                 </div>
                             </div>
@@ -590,7 +599,31 @@ export default function TelaDeJogoCadastro() {
                 </div>
             )}
 
-            {/*POPUP balanço do dia*/}
+            {/*popup de estoque esgotado*/}
+            {showEstoqueEsgotado && (
+                <div className="absolute inset-0 bg-black/75 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 text-center
+                        w-80 border-4 border-goldenYellow text-textBlack">
+                        <p className="text-3xl mb-3">📦</p>
+                        <h2 className="text-sm font-bold mb-3">Estoque Esgotado!</h2>
+                        <p className="text-[9px] text-gray-600 leading-relaxed mb-2">
+                            Seus ingredientes acabaram antes do fim do dia.
+                        </p>
+                        <p className="text-[9px] text-gray-600 leading-relaxed mb-6">
+                            Foram atendidos <strong className="text-vibratingBlue">
+                                {resultadoDia?.clientes_atendidos ?? 0}
+                            </strong> de <strong>{resultadoDia?.clientes_totais ?? 0}</strong> clientes.
+                        </p>
+                        <button onClick={handleFecharEstoqueEsgotado}
+                            className="w-full py-3 bg-goldenYellow text-white rounded-xl
+                                font-bold text-xs hover:opacity-80 active:scale-95 transition-transform">
+                            Ver Balanço do Dia
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/*popup de balanço do dia*/}
             {showEndOfDayPopup && resultadoDia && (
                 <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-50">
                     <div className="bg-white rounded-3xl shadow-2xl p-8 text-center
@@ -605,38 +638,39 @@ export default function TelaDeJogoCadastro() {
                                 { label: "Clientes", value: `${resultadoDia.clientes_atendidos} / ${resultadoDia.clientes_totais}`, color: "text-vibratingBlue" },
                                 { label: "Desistiram", value: String(resultadoDia.clientes_perdidos), color: "text-crimsonRed" },
                             ].map(({ label, value, color }) => (
-                                <div key={label} className="flex justify-between items-center
-                                    border-b border-gray-100 pb-2">
+                                <div key={label} className="flex justify-between items-center border-b border-gray-100 pb-2">
                                     <span className="text-[9px] text-gray-500">{label}</span>
                                     <span className={`text-xs font-bold ${color}`}>{value}</span>
                                 </div>
                             ))}
-                            <div className="flex justify-between items-center
-                                bg-gray-50 rounded-xl p-3 mt-1">
+                            {resultadoDia.estoque_esgotado && (
+                                <div className="bg-goldenYellow/10 border border-goldenYellow
+                                    rounded-xl p-2 text-[8px] text-center text-goldenYellow font-bold">
+                                    ⚠ Estoque esgotado antes do fim do dia
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3 mt-1">
                                 <span className="text-[9px] font-bold">Lucro líquido</span>
                                 <span className={`text-sm font-bold
-                                    ${resultadoDia.lucro - gastoHoje >= 0
-                                        ? "text-vibratingBlue" : "text-crimsonRed"}`}>
+                                    ${resultadoDia.lucro - gastoHoje >= 0 ? "text-vibratingBlue" : "text-crimsonRed"}`}>
                                     R$ {(resultadoDia.lucro - gastoHoje).toFixed(2)}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center
-                                bg-gray-50 rounded-xl p-3">
+                            <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3">
                                 <span className="text-[9px] font-bold">Satisfação</span>
                                 <span className={`text-xs font-bold ${satColor}`}>{sat} / 10</span>
                             </div>
                         </div>
                         <button onClick={nextDay}
                             className="w-full py-4 bg-lightGreen text-white rounded-2xl
-                                font-bold text-xs shadow-lg hover:opacity-90
-                                active:scale-95 transition-transform">
+                                font-bold text-xs shadow-lg hover:opacity-90 active:scale-95 transition-transform">
                             Próximo Dia →
                         </button>
                     </div>
                 </div>
             )}
 
-            {/*POPUP fim de jogo*/}
+            {/*popup de fim de jogo*/}
             {showGameOverPopup && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 text-center
@@ -651,13 +685,11 @@ export default function TelaDeJogoCadastro() {
                         </p>
                         <div className="flex gap-3 justify-center">
                             <button onClick={() => navigate("/JogoCadastro")}
-                                className="px-5 py-3 bg-gray-100 text-gray-700
-                                    rounded-xl font-bold text-xs hover:bg-gray-200">
+                                className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
                                 Menu
                             </button>
                             <button onClick={() => window.location.reload()}
-                                className="px-5 py-3 bg-vibratingBlue text-white
-                                    rounded-xl font-bold text-xs hover:opacity-80">
+                                className="px-5 py-3 bg-vibratingBlue text-white rounded-xl font-bold text-xs hover:opacity-80">
                                 Jogar de Novo
                             </button>
                         </div>
