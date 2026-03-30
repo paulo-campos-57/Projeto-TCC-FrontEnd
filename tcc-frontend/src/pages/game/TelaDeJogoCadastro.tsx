@@ -333,16 +333,16 @@ export default function TelaDeJogoCadastro() {
     }
 
     return (
-        <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite overflow-hidden relative">
+        <div className="w-full min-h-screen font-pressStart flex flex-col bg-primaryWhite overflow-y-auto relative">
             <Toaster position="top-right" />
             <Header />
 
             {/*tela do jogo*/}
             {!showSetupPopup && (
-                <div className="flex-1 flex flex-col p-4 pt-20 gap-4 overflow-hidden">
+                <div className="flex-1 flex flex-col p-4 pt-24 pb-8 gap-6">
 
                     {/* HUD */}
-                    <div className="flex flex-wrap justify-between items-center gap-3">
+                    <div className="flex flex-wrap justify-between items-center gap-4">
                         {[
                             { label: "Bairro", value: config.bairro.nome },
                             { label: "Dia", value: `${sessao.dia_atual} / ${totalDias}` },
@@ -350,70 +350,76 @@ export default function TelaDeJogoCadastro() {
                             { label: "Caixa", value: `R$ ${sessao.budget.toFixed(2)}` },
                         ].map(({ label, value }) => (
                             <div key={label}
-                                className="flex flex-col items-center bg-vibratingBlue
-                                    text-primaryWhite px-5 py-2 rounded-xl
-                                    border-4 border-goldenYellow shadow-md flex-1 min-w-[110px]">
-                                <span className="text-[8px] uppercase tracking-widest opacity-70">{label}</span>
-                                <span className="text-sm font-bold mt-0.5">{value}</span>
+                                className="flex flex-col items-center bg-vibratingBlue text-primaryWhite px-5 py-3 
+                                    border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex-1 min-w-[110px]">
+                                <span className="text-[8px] uppercase tracking-widest text-goldenYellow">{label}</span>
+                                <span className="text-[10px] md:text-xs font-bold mt-1">{value}</span>
                             </div>
                         ))}
-                        <div className="flex flex-col items-center bg-textBlack text-primaryWhite
-                            px-5 py-2 rounded-xl border-4 border-goldenYellow shadow-md flex-1 min-w-[110px]">
-                            <span className="text-[8px] uppercase tracking-widest opacity-70">Satisfação</span>
-                            <span className={`text-sm font-bold mt-0.5 ${satColor}`}>{sat} / 10</span>
+                        <div className="flex flex-col items-center bg-textBlack text-primaryWhite px-5 py-3 
+                            border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex-1 min-w-[110px]">
+                            <span className="text-[8px] uppercase tracking-widest text-goldenYellow">Satisfação</span>
+                            <span className={`text-[10px] md:text-xs font-bold mt-1 ${satColor}`}>{sat} / 10</span>
                         </div>
                         <button onClick={togglePause}
-                            className={`px-5 py-3 rounded-xl border-4 border-goldenYellow
-                                text-xs font-bold shadow-md transition-all
-                                ${isPaused ? "bg-lightGreen text-primaryWhite" : "bg-crimsonRed text-primaryWhite"}`}>
-                            {isPaused ? "▶ Retomar" : "⏸ Pausar"}
+                            className={`px-6 py-4 border-4 border-black text-[10px] md:text-xs font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)] 
+                                active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
+                                ${isPaused ? "bg-lightGreen text-textBlack" : "bg-crimsonRed text-primaryWhite"}`}>
+                            {isPaused ? "▶ RETOMAR" : "⏸ PAUSAR"}
                         </button>
                     </div>
 
                     {/* área do jogo */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
 
-                        <div className="bg-lightGreen/10 border-4 border-dashed border-lightGreen
-                            rounded-2xl flex flex-col items-center justify-center p-6 gap-3">
-                            <p className="text-xs text-gray-500">Preparação</p>
-                            <div className="text-6xl animate-bounce">🍳</div>
-                            <p className="text-[9px] text-gray-400">
+                        {/* Bloco Preparação */}
+                        <div className="bg-lightGreen border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]
+                            flex flex-col items-center justify-center p-6 gap-4 relative">
+                            <p className="absolute top-4 left-4 text-[10px] md:text-xs font-bold text-textBlack bg-white px-2 py-1 border-2 border-black">
+                                PREPARAÇÃO
+                            </p>
+                            <div className="text-6xl animate-bounce mt-8 drop-shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">🍳</div>
+                            <p className="text-[10px] text-textBlack bg-white px-3 py-1 border-2 border-black mt-2">
                                 Preço: <strong className="text-vibratingBlue">R$ {sessao.preco_tapioca}</strong>
                             </p>
-                            <div className="flex flex-wrap gap-1.5 justify-center">
+                            <div className="flex flex-wrap gap-2 justify-center mt-2">
                                 {estoqueVisivelNaTela.filter(i => i.quantidade > 0).map(i => {
                                     const porcao = receitaLocal[i.nome] ?? sessao.receita[i.nome] ?? 0;
                                     const critico = porcao > 0 && i.quantidade <= porcao * 3;
                                     return (
                                         <span key={i.nome}
-                                            className={`text-[8px] px-2 py-0.5 rounded-full border font-bold transition-colors
+                                            className={`text-[8px] px-2 py-1 border-2 font-bold transition-colors
                                                 ${critico
-                                                    ? "border-crimsonRed text-red-700 bg-red-50"
-                                                    : "border-lightGreen text-green-700 bg-green-50"
+                                                    ? "border-black text-white bg-crimsonRed shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                                                    : "border-black text-textBlack bg-white shadow-[2px_2px_0px_rgba(0,0,0,1)]"
                                                 }`}>
                                             {i.nome.split(" ")[0]} ×{i.quantidade}
                                         </span>
                                     );
                                 })}
                                 {estoqueVisivelNaTela.every(i => i.quantidade === 0) && (
-                                    <span className="text-[8px] text-crimsonRed font-bold">
-                                        Sem estoque!
+                                    <span className="text-[8px] text-primaryWhite bg-crimsonRed px-2 py-1 border-2 border-black font-bold animate-pulse">
+                                        SEM ESTOQUE!
                                     </span>
                                 )}
                             </div>
                         </div>
 
-                        {/*clientes*/}
-                        <div className="bg-white border-4 border-vibratingBlue rounded-2xl
-                            flex flex-col items-center justify-center p-6 gap-3 shadow-sm">
-                            <p className="text-xs">Fila de Clientes</p>
-                            <p className="text-5xl font-bold text-vibratingBlue">{clientesExibidos}</p>
-                            <p className="text-[9px] text-gray-400">
+                        {/* Bloco Clientes */}
+                        <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]
+                            flex flex-col items-center justify-center p-6 gap-4 relative">
+                            <p className="absolute top-4 left-4 text-[10px] md:text-xs font-bold text-primaryWhite bg-vibratingBlue px-2 py-1 border-2 border-black">
+                                FILA DE CLIENTES
+                            </p>
+                            <p className="text-6xl md:text-8xl font-bold text-vibratingBlue drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] mt-8">
+                                {clientesExibidos}
+                            </p>
+                            <p className="text-[8px] md:text-[10px] text-textBlack font-bold">
                                 de {resultadoDia?.clientes_atendidos ?? "?"} previstos hoje
                             </p>
                             {(resultadoDia?.clientes_perdidos ?? 0) > 0 && (
-                                <p className="text-[9px] text-crimsonRed">
-                                    {resultadoDia?.clientes_perdidos} desistiram pelo preço
+                                <p className="text-[8px] md:text-[10px] text-primaryWhite bg-crimsonRed px-2 py-1 border-2 border-black font-bold">
+                                    {resultadoDia?.clientes_perdidos} DESISTIRAM PELO PREÇO
                                 </p>
                             )}
                         </div>
@@ -423,64 +429,65 @@ export default function TelaDeJogoCadastro() {
 
             {/*popup de setup*/}
             {showSetupPopup && (
-                <div className="absolute inset-0 bg-black/60 flex justify-center items-center z-50">
-                    <div className="bg-white w-11/12 md:w-3/4 lg:w-[640px]
-                        min-h-[520px] rounded-2xl shadow-2xl p-6 flex flex-col
-                        border-4 border-vibratingBlue text-textBlack">
+                <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+                    <div className="bg-primaryWhite w-full max-w-2xl min-h-[520px] shadow-[12px_12px_0px_rgba(0,0,0,1)] 
+                        p-6 md:p-8 flex flex-col border-4 border-black text-textBlack">
 
-                        <div className="flex justify-center gap-2 mb-5">
+                        <div className="flex justify-center gap-3 mb-6">
                             {([1, 2, 3] as const).map(s => (
                                 <div key={s}
-                                    className={`h-2 rounded-full transition-all duration-300
-                                        ${popupStep >= s ? "bg-vibratingBlue w-8" : "bg-gray-200 w-4"}`} />
+                                    className={`h-4 transition-all duration-300 border-2 border-black
+                                        ${popupStep >= s ? "bg-vibratingBlue w-12" : "bg-white w-6"}`} />
                             ))}
                         </div>
 
                         {/*ETAPA 1 — estoque*/}
                         {popupStep === 1 && (
                             <div className="flex flex-col flex-1">
-                                <h2 className="text-base text-center font-bold mb-1">Fase 1 — Estoque</h2>
-                                <p className="text-[9px] text-center text-gray-400 mb-4">
-                                    Bairro: <strong>{config.bairro.nome}</strong>
+                                <h2 className="text-sm md:text-base text-center font-bold mb-2 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                    FASE 1 — ESTOQUE
+                                </h2>
+                                <p className="text-[8px] md:text-[10px] text-center text-textBlack mb-4">
+                                    Bairro: <strong className="border-b-2 border-black border-dashed pb-1">{config.bairro.nome}</strong>
                                     {config.bairro.expectativa && (
                                         <> · Expectativa: <strong>{config.bairro.expectativa}</strong></>
                                     )}
                                 </p>
-                                <div className="bg-goldenYellow/20 border border-goldenYellow
-                                    rounded-xl py-2 text-center text-xs font-bold mb-4">
-                                    Orçamento: R$ {sessao.budget.toFixed(2)}
+                                <div className="bg-goldenYellow border-4 border-black py-3 text-center text-[10px] md:text-xs font-bold mb-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                    ORÇAMENTO: R$ {sessao.budget.toFixed(2)}
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 flex-1">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
                                     {catalogo.map(item => {
                                         const qtd = sessao.estoque.find(e => e.nome === item.nome)?.quantidade ?? 0;
                                         const podeDevolver = qtd >= item.porcao;
                                         return (
                                             <div key={item.nome}
-                                                className="border-2 border-gray-100 rounded-xl p-3 bg-gray-50 flex flex-col gap-2">
-                                                <p className="text-[10px] font-bold">{item.nome}</p>
-                                                <p className="text-[9px] text-vibratingBlue font-bold">
-                                                    Rende {item.porcao} porções
-                                                </p>
-                                                <div className="bg-white rounded-lg px-2 py-1.5
-                                                    border border-gray-100 text-[9px] space-y-0.5">
-                                                    <p>Preço: <strong className="text-lightGreen">R$ {item.preco}</strong></p>
+                                                className="border-4 border-black bg-lightGreen/20 p-4 flex flex-col gap-3 relative shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                                <div className="flex justify-between items-start">
+                                                    <p className="text-[10px] md:text-xs font-bold">{item.nome}</p>
+                                                    <p className="text-[8px] text-primaryWhite bg-vibratingBlue px-1 py-0.5 border border-black">
+                                                        Rende {item.porcao} un
+                                                    </p>
+                                                </div>
+                                                <div className="bg-white border-2 border-black px-3 py-2 text-[8px] md:text-[10px] space-y-1">
+                                                    <p>Preço: <strong className="text-lightGreen drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]">R$ {item.preco}</strong></p>
                                                     <p>Estoque: <strong>{qtd}</strong></p>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 mt-auto">
                                                     <button
                                                         onClick={() => handleDevolver(item.nome)}
                                                         disabled={!podeDevolver}
-                                                        className={`flex-1 py-1.5 rounded-lg font-bold text-lg
+                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
                                                             ${podeDevolver
-                                                                ? "bg-crimsonRed text-white hover:opacity-80"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>−</button>
+                                                                ? "bg-crimsonRed text-white"
+                                                                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>−</button>
                                                     <button
                                                         onClick={() => handleComprar(item.nome)}
                                                         disabled={sessao.budget < item.preco}
-                                                        className={`flex-1 py-1.5 rounded-lg font-bold text-lg
+                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
                                                             ${sessao.budget >= item.preco
-                                                                ? "bg-lightGreen text-white hover:opacity-80"
-                                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>+</button>
+                                                                ? "bg-lightGreen text-textBlack"
+                                                                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>+</button>
                                                 </div>
                                             </div>
                                         );
@@ -494,9 +501,8 @@ export default function TelaDeJogoCadastro() {
                                         }
                                         setPopupStep(2);
                                     }}
-                                    className="mt-5 w-full py-3 bg-vibratingBlue text-white
-                                        rounded-xl font-bold text-xs hover:bg-blue-700 transition">
-                                    Definir Receita →
+                                    className="mt-6 w-full py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                    DEFINIR RECEITA →
                                 </button>
                             </div>
                         )}
@@ -504,52 +510,59 @@ export default function TelaDeJogoCadastro() {
                         {/*ETAPA 2 — receita*/}
                         {popupStep === 2 && (
                             <div className="flex flex-col flex-1">
-                                <h2 className="text-base text-center font-bold mb-1">Fase 2 — Receita</h2>
-                                <p className="text-[9px] text-center text-gray-400 mb-4">Porções por tapioca</p>
-                                <div className="flex-1 space-y-3 overflow-y-auto pr-1 mb-4">
+                                <h2 className="text-sm md:text-base text-center font-bold mb-2 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                    FASE 2 — RECEITA
+                                </h2>
+                                <p className="text-[8px] md:text-[10px] text-center text-textBlack mb-6">Porções por tapioca</p>
+
+                                <div className="flex-1 space-y-4 overflow-y-auto pr-2 mb-6">
                                     {sessao.estoque.filter(i => i.quantidade > 0).map(ing => (
                                         <div key={ing.nome}
-                                            className="flex items-center justify-between
-                                                bg-gray-50 p-3 rounded-xl border-2 border-dashed border-gray-200">
+                                            className="flex items-center justify-between bg-white p-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                             <div>
-                                                <p className="text-[10px] font-bold">{ing.nome}</p>
-                                                <p className="text-[9px] text-vibratingBlue font-bold">
-                                                    Estoque: {ing.quantidade}
+                                                <p className="text-[10px] md:text-xs font-bold">{ing.nome}</p>
+                                                <p className="text-[8px] md:text-[10px] text-vibratingBlue font-bold mt-1">
+                                                    Estoque total: {ing.quantidade}
                                                 </p>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <button onClick={() => handleReceita(ing.nome, -1)}
-                                                    className="w-8 h-8 bg-crimsonRed text-white rounded-lg font-bold hover:opacity-80">−</button>
-                                                <div className="flex flex-col items-center w-8">
-                                                    <span className="font-bold text-lg leading-none">
+                                                    className="w-10 h-10 bg-crimsonRed text-white border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                                    −
+                                                </button>
+                                                <div className="flex flex-col items-center w-10">
+                                                    <span className="font-bold text-lg md:text-xl leading-none">
                                                         {sessao.receita[ing.nome] ?? 0}
                                                     </span>
-                                                    <span className="text-[7px] uppercase text-gray-400">un.</span>
+                                                    <span className="text-[7px] font-bold uppercase text-textBlack">un.</span>
                                                 </div>
                                                 <button onClick={() => handleReceita(ing.nome, 1)}
                                                     disabled={(sessao.receita[ing.nome] ?? 0) >= ing.quantidade}
-                                                    className={`w-8 h-8 rounded-lg font-bold
+                                                    className={`w-10 h-10 border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
                                                         ${(sessao.receita[ing.nome] ?? 0) >= ing.quantidade
-                                                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                                            : "bg-lightGreen text-white hover:opacity-80"}`}>+</button>
+                                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                            : "bg-lightGreen text-textBlack"}`}>
+                                                    +
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="bg-vibratingBlue/10 border border-vibratingBlue
-                                    rounded-xl py-2 text-center text-[9px] font-bold mb-4">
-                                    Esta receita rende <strong className="text-vibratingBlue">
-                                        {sessao.tapiocas_possiveis} tapiocas
-                                    </strong> com o estoque atual
+
+                                <div className="bg-lightGreen border-4 border-black py-3 px-4 text-center text-[8px] md:text-[10px] font-bold mb-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                    Esta receita rende <strong className="text-white drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] bg-vibratingBlue px-2 py-0.5 border-2 border-black ml-1">
+                                        {sessao.tapiocas_possiveis} TAPIOCAS
+                                    </strong>
                                 </div>
-                                <div className="flex gap-3">
+
+                                <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                                     <button onClick={() => setPopupStep(1)}
-                                        className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
-                                        ← Voltar
+                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        ← VOLTAR
                                     </button>
                                     <button onClick={() => setPopupStep(3)}
-                                        className="flex-1 py-3 bg-vibratingBlue text-white rounded-xl font-bold text-xs hover:bg-blue-700">
-                                        Definir Preço →
+                                        className="flex-1 py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        DEFINIR PREÇO →
                                     </button>
                                 </div>
                             </div>
@@ -557,47 +570,56 @@ export default function TelaDeJogoCadastro() {
 
                         {/*ETAPA 3 — preço*/}
                         {popupStep === 3 && (
-                            <div className="flex flex-col items-center justify-center flex-1 gap-4">
-                                <h2 className="text-base text-center font-bold">Fase 3 — Precificação</h2>
+                            <div className="flex flex-col items-center justify-center flex-1 gap-6">
+                                <h2 className="text-sm md:text-base text-center font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                    FASE 3 — PRECIFICAÇÃO
+                                </h2>
+
                                 {config.bairro.focoPreco && (
-                                    <div className="bg-vibratingBlue/10 border border-vibratingBlue
-                                        rounded-xl px-4 py-2 text-[9px] text-center leading-relaxed max-w-xs">
+                                    <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-3 text-[8px] md:text-[10px] text-center leading-relaxed max-w-xs">
                                         Foco em <strong>{config.bairro.nome}</strong>:
-                                        &nbsp;<strong>{config.bairro.focoPreco}</strong>
+                                        <br /><span className="text-vibratingBlue font-bold underline mt-1 block">{config.bairro.focoPreco}</span>
                                     </div>
                                 )}
-                                <p className="text-[9px] text-center text-gray-400 max-w-xs">
-                                    O preço impacta satisfação e quantos clientes compram.
+
+                                <p className="text-[8px] md:text-[10px] text-center text-textBlack max-w-sm border-b-2 border-black border-dashed pb-2">
+                                    O preço impacta a satisfação e quantos clientes compram.
                                 </p>
-                                <div className="flex items-center gap-6 my-2">
+
+                                <div className="flex items-center gap-6 my-4 bg-gray-100 p-6 border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]">
                                     <button onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
-                                        className="w-12 h-12 bg-crimsonRed text-white rounded-full text-2xl font-bold hover:opacity-80">−</button>
-                                    <div className="text-center">
-                                        <span className="text-5xl font-bold text-lightGreen">
+                                        className="w-14 h-14 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        −
+                                    </button>
+                                    <div className="text-center min-w-[120px]">
+                                        <span className="text-3xl md:text-5xl font-bold text-lightGreen drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                             R$ {sessao.preco_tapioca}
                                         </span>
-                                        <p className="text-[8px] text-gray-400 mt-1">por unidade</p>
+                                        <p className="text-[8px] md:text-[10px] font-bold text-textBlack mt-2 bg-white border-2 border-black py-1">POR UNIDADE</p>
                                     </div>
                                     <button onClick={() => handlePreco(sessao.preco_tapioca + 1)}
-                                        className="w-12 h-12 bg-lightGreen text-white rounded-full text-2xl font-bold hover:opacity-80">+</button>
+                                        className="w-14 h-14 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        +
+                                    </button>
                                 </div>
-                                <div className="bg-goldenYellow/10 border border-goldenYellow
-                                    rounded-xl py-2 px-4 text-[9px] text-center font-bold">
-                                    Receita máxima potencial:&nbsp;
-                                    <strong className="text-goldenYellow">
+
+                                <div className="bg-goldenYellow border-4 border-black py-3 px-6 text-[8px] md:text-[10px] text-center font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)] w-full max-w-sm">
+                                    RECEITA MÁX. POTENCIAL:
+                                    <br />
+                                    <strong className="text-textBlack bg-white px-2 py-0.5 border-2 border-black mt-2 inline-block">
                                         R$ {(sessao.tapiocas_possiveis * sessao.preco_tapioca).toFixed(2)}
                                     </strong>
                                 </div>
-                                <div className="flex gap-3 mt-2">
+
+                                <div className="flex flex-col sm:flex-row gap-4 mt-auto w-full">
                                     <button onClick={() => setPopupStep(2)}
-                                        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
-                                        ← Voltar
+                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        ← VOLTAR
                                     </button>
                                     <button onClick={handleStartGame} disabled={isProcessando}
-                                        className={`px-8 py-3 text-white rounded-xl font-bold text-xs
-                                            active:scale-95 transition-transform
-                                            ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen hover:opacity-80"}`}>
-                                        {isProcessando ? "Abrindo..." : "Abrir Barraca! 🚀"}
+                                        className={`flex-[2] py-4 text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
+                                            ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen"}`}>
+                                        {isProcessando ? "ABRINDO..." : "ABRIR BARRACA! 🚀"}
                                     </button>
                                 </div>
                             </div>
@@ -608,23 +630,23 @@ export default function TelaDeJogoCadastro() {
 
             {/*popup de estoque esgotado*/}
             {showEstoqueEsgotado && (
-                <div className="absolute inset-0 bg-black/75 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 text-center
-                        w-80 border-4 border-goldenYellow text-textBlack">
-                        <p className="text-3xl mb-3">📦</p>
-                        <h2 className="text-sm font-bold mb-3">Estoque Esgotado!</h2>
-                        <p className="text-[9px] text-gray-600 leading-relaxed mb-2">
+                <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-sm text-textBlack">
+                        <p className="text-5xl mb-4 drop-shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">📦</p>
+                        <h2 className="text-sm md:text-base font-bold mb-4 text-crimsonRed drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                            ESTOQUE ESGOTADO!
+                        </h2>
+                        <p className="text-[10px] md:text-xs font-bold leading-relaxed mb-4 border-y-2 border-black border-dashed py-4">
                             Seus ingredientes acabaram antes do fim do dia.
                         </p>
-                        <p className="text-[9px] text-gray-600 leading-relaxed mb-6">
-                            Foram atendidos <strong className="text-vibratingBlue">
-                                {resultadoDia?.clientes_atendidos ?? 0}
-                            </strong> de <strong>{resultadoDia?.clientes_totais ?? 0}</strong> clientes.
+                        <p className="text-[10px] md:text-xs leading-relaxed mb-8 bg-gray-100 p-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                            Foram atendidos <strong className="text-vibratingBlue text-sm block mt-2">
+                                {resultadoDia?.clientes_atendidos ?? 0} / {resultadoDia?.clientes_totais ?? 0}
+                            </strong>
                         </p>
                         <button onClick={handleFecharEstoqueEsgotado}
-                            className="w-full py-3 bg-goldenYellow text-white rounded-xl
-                                font-bold text-xs hover:opacity-80 active:scale-95 transition-transform">
-                            Ver Balanço do Dia
+                            className="w-full py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                            VER BALANÇO DO DIA
                         </button>
                     </div>
                 </div>
@@ -632,46 +654,50 @@ export default function TelaDeJogoCadastro() {
 
             {/*popup de balanço do dia*/}
             {showEndOfDayPopup && resultadoDia && (
-                <div className="absolute inset-0 bg-black/70 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-3xl shadow-2xl p-8 text-center
-                        w-full max-w-sm border-4 border-vibratingBlue text-textBlack">
-                        <h2 className="text-base font-bold mb-6 uppercase tracking-tight">
-                            Balanço — Dia {sessao.dia_atual}
+                <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-6 md:p-8 text-center w-full max-w-md text-textBlack">
+                        <h2 className="text-sm md:text-base font-bold mb-6 uppercase text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-white border-4 border-black py-2 inline-block px-4">
+                            BALANÇO — DIA {sessao.dia_atual}
                         </h2>
-                        <div className="space-y-3 mb-8 text-left">
+
+                        <div className="space-y-4 mb-8 text-left bg-gray-100 p-4 md:p-6 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
                             {[
                                 { label: "Faturamento", value: `R$ ${resultadoDia.lucro.toFixed(2)}`, color: "text-lightGreen" },
                                 { label: "Gastos estoque", value: `R$ ${gastoHoje.toFixed(2)}`, color: "text-crimsonRed" },
                                 { label: "Clientes", value: `${resultadoDia.clientes_atendidos} / ${resultadoDia.clientes_totais}`, color: "text-vibratingBlue" },
                                 { label: "Desistiram", value: String(resultadoDia.clientes_perdidos), color: "text-crimsonRed" },
                             ].map(({ label, value, color }) => (
-                                <div key={label} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                    <span className="text-[9px] text-gray-500">{label}</span>
-                                    <span className={`text-xs font-bold ${color}`}>{value}</span>
+                                <div key={label} className="flex justify-between items-center border-b-2 border-black border-dashed pb-2">
+                                    <span className="text-[8px] md:text-[10px] font-bold text-textBlack uppercase">{label}</span>
+                                    <span className={`text-[10px] md:text-xs font-bold bg-white px-2 border-2 border-black ${color}`}>{value}</span>
                                 </div>
                             ))}
+
                             {resultadoDia.estoque_esgotado && (
-                                <div className="bg-goldenYellow/10 border border-goldenYellow
-                                    rounded-xl p-2 text-[8px] text-center text-goldenYellow font-bold">
-                                    ⚠ Estoque esgotado antes do fim do dia
+                                <div className="bg-crimsonRed border-2 border-black text-white p-2 text-[8px] md:text-[10px] text-center font-bold animate-pulse mt-4 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                    ⚠ ESTOQUE ESGOTADO ANTES DA HORA
                                 </div>
                             )}
-                            <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3 mt-1">
-                                <span className="text-[9px] font-bold">Lucro líquido</span>
-                                <span className={`text-sm font-bold
-                                    ${resultadoDia.lucro - gastoHoje >= 0 ? "text-vibratingBlue" : "text-crimsonRed"}`}>
+
+                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                <span className="text-[8px] md:text-[10px] font-bold uppercase">LUCRO LÍQUIDO</span>
+                                <span className={`text-xs md:text-sm font-bold drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]
+                                    ${resultadoDia.lucro - gastoHoje >= 0 ? "text-lightGreen" : "text-crimsonRed"}`}>
                                     R$ {(resultadoDia.lucro - gastoHoje).toFixed(2)}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3">
-                                <span className="text-[9px] font-bold">Satisfação</span>
-                                <span className={`text-xs font-bold ${satColor}`}>{sat} / 10</span>
+
+                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-2 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                <span className="text-[8px] md:text-[10px] font-bold uppercase">SATISFAÇÃO</span>
+                                <span className={`text-[10px] md:text-xs font-bold bg-gray-800 text-white px-2 py-1 border-2 border-black`}>
+                                    <span className={satColor}>{sat}</span> / 10
+                                </span>
                             </div>
                         </div>
+
                         <button onClick={nextDay}
-                            className="w-full py-4 bg-lightGreen text-white rounded-2xl
-                                font-bold text-xs shadow-lg hover:opacity-90 active:scale-95 transition-transform">
-                            Próximo Dia →
+                            className="w-full py-4 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                            PRÓXIMO DIA →
                         </button>
                     </div>
                 </div>
@@ -679,25 +705,34 @@ export default function TelaDeJogoCadastro() {
 
             {/*popup de fim de jogo*/}
             {showGameOverPopup && (
-                <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 text-center
-                        w-80 border-4 border-goldenYellow text-textBlack">
-                        <p className="text-3xl mb-3">🎉</p>
-                        <h2 className="text-sm font-bold mb-3">Fim de Expediente!</h2>
-                        <p className="text-[9px] text-gray-600 leading-relaxed mb-2">
-                            Você completou {totalDias} dias em <strong>{config.bairro.nome}</strong>.
-                        </p>
-                        <p className="text-[9px] text-gray-600 leading-relaxed mb-6">
-                            Satisfação final: <strong className={satColor}>{sat} / 10</strong>
-                        </p>
-                        <div className="flex gap-3 justify-center">
+                <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-md text-textBlack">
+                        <p className="text-5xl mb-4 drop-shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">🎉</p>
+                        <h2 className="text-sm md:text-lg font-bold mb-6 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                            FIM DE EXPEDIENTE!
+                        </h2>
+
+                        <div className="bg-gray-100 p-6 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)] mb-8 space-y-4">
+                            <p className="text-[8px] md:text-[10px] font-bold leading-relaxed border-b-2 border-black border-dashed pb-4">
+                                Você completou {totalDias} dias em<br />
+                                <strong className="text-vibratingBlue text-xs md:text-sm mt-2 block bg-white border-2 border-black py-1">{config.bairro.nome}</strong>
+                            </p>
+                            <p className="text-[8px] md:text-[10px] font-bold uppercase flex justify-between items-center pt-2">
+                                Satisfação Final:
+                                <strong className={`bg-gray-800 text-white px-3 py-1 border-2 border-black text-xs`}>
+                                    <span className={satColor}>{sat}</span> / 10
+                                </strong>
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
                             <button onClick={() => navigate("/JogoCadastro")}
-                                className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-200">
-                                Menu
+                                className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                MENU
                             </button>
                             <button onClick={() => window.location.reload()}
-                                className="px-5 py-3 bg-vibratingBlue text-white rounded-xl font-bold text-xs hover:opacity-80">
-                                Jogar de Novo
+                                className="flex-[2] py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                JOGAR DE NOVO
                             </button>
                         </div>
                     </div>

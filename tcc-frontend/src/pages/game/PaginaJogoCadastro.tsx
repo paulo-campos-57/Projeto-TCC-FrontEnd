@@ -94,15 +94,15 @@ export default function PaginaJogoCadastro() {
     };
 
     return (
-        <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite relative">
+        <div className="w-full min-h-screen font-pressStart flex flex-col bg-primaryWhite overflow-y-auto relative">
             <Toaster />
             <Header />
 
-            <div className="flex flex-1 flex-col lg:flex-row gap-8 justify-center items-center p-6">
-                {/* LADO ESQUERDO: MAPA */}
-                <div className="w-full lg:w-3/5 h-[70vh] rounded-2xl overflow-hidden shadow-lg border-4 border-lightGreen">
+            <div className="flex flex-1 flex-col lg:flex-row gap-8 justify-center items-center px-4 pt-24 pb-20">
+
+                <div className="w-full lg:w-3/5 h-[60vh] md:h-[70vh] border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white relative z-0">
                     {loading ? (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100 animate-pulse">
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 animate-pulse text-[10px] md:text-xs">
                             <p>Carregando mapa de Recife...</p>
                         </div>
                     ) : (
@@ -141,52 +141,67 @@ export default function PaginaJogoCadastro() {
                     )}
                 </div>
 
-                {/* LADO DIREITO: INFOS DO BACKEND */}
                 {!showPopup && (
-                    <div className="w-full lg:w-2/5 bg-white rounded-2xl shadow-xl p-6 text-center border-4 border-vibratingBlue flex flex-col justify-center items-center">
+                    <div className="w-full lg:w-2/5 bg-white border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-6 md:p-8 text-center flex flex-col justify-center items-center">
                         {selectedNeighborhood ? (
                             <>
-                                <h2 className="text-xl font-bold text-vibratingBlue mb-4">
+                                <h2 className="text-sm md:text-lg lg:text-xl font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] mb-6">
                                     {selectedNeighborhood.nome}
                                 </h2>
-                                <p className="text-gray-700 text-xs leading-relaxed mb-4">
+
+                                <p className="text-textBlack text-[10px] md:text-xs leading-loose mb-6">
                                     {selectedNeighborhood.descricao}
                                 </p>
-                                <div className="bg-lightGreen/20 p-4 rounded-lg w-full space-y-2">
-                                    <p className="text-[10px] text-gray-800 text-left">
+
+                                <div className="bg-lightGreen p-4 w-full space-y-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] mb-6">
+                                    <p className="text-[8px] md:text-[10px] text-textBlack text-left">
                                         <strong>💰 FOCO PREÇO:</strong> {selectedNeighborhood.focoPreco}
                                     </p>
-                                    <p className="text-[10px] text-gray-800 text-left">
+                                    <p className="text-[8px] md:text-[10px] text-textBlack text-left">
                                         <strong>🎯 EXPECTATIVA:</strong> {selectedNeighborhood.expectativa}
                                     </p>
                                 </div>
+
                                 <button
                                     onClick={handleStartGame}
-                                    className="mt-6 px-6 py-3 bg-vibratingBlue hover:bg-blue-700 text-white rounded-xl transition font-bold text-xs"
+                                    className="w-full px-6 py-4 bg-vibratingBlue text-primaryWhite font-bold text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
                                 >
                                     ABRIR TAPIOCARIA
                                 </button>
                             </>
                         ) : (
-                            <p className="text-gray-400 text-xs italic">
-                                Selecione um ponto no mapa para ver as estatísticas do bairro
+                            <p className="text-gray-400 text-[10px] md:text-xs text-center border-4 border-dashed border-gray-300 p-8 w-full">
+                                Selecione um ponto no mapa para ver as estatísticas do bairro.
                             </p>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* MODAL DE TEMPO (POPUP) */}
             {showPopup && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-[1000]">
-                    <div className="bg-white rounded-2xl p-10 w-[90%] max-w-lg text-center border-8 border-goldenYellow">
-                        <h2 className="text-xl font-bold mb-6">MODO SELECIONADO</h2>
-                        <p className="text-sm leading-8">
-                            Tempo: <span className="text-vibratingBlue font-bold underline">{tempoDeJogo}</span>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-[1000] px-4">
+                    <div className="bg-primaryWhite p-8 md:p-10 w-full max-w-lg text-center border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)]">
+                        <h2 className="text-sm md:text-xl font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] mb-8">
+                            MODO SELECIONADO
+                        </h2>
+
+                        <p className="text-[10px] md:text-xs leading-8 text-textBlack mb-8">
+                            Tempo: <span className="text-vibratingBlue font-bold border-b-2 border-black border-dashed pb-1">{tempoDeJogo}</span>
                         </p>
-                        <div className="flex gap-4 mt-8">
-                            <button onClick={handleGoBack} className="flex-1 bg-crimsonRed text-white py-3 rounded-lg text-xs">VOLTAR</button>
-                            <button onClick={handleContinue} className="flex-1 bg-lightGreen text-white py-3 rounded-lg text-xs">CONTINUAR</button>
+
+                        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                            <button
+                                onClick={handleGoBack}
+                                className="flex-1 bg-crimsonRed text-primaryWhite py-4 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                            >
+                                VOLTAR
+                            </button>
+                            <button
+                                onClick={handleContinue}
+                                className="flex-1 bg-lightGreen text-textBlack py-4 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                            >
+                                CONTINUAR
+                            </button>
                         </div>
                     </div>
                 </div>

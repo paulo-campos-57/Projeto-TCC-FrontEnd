@@ -53,18 +53,21 @@ export default function Cadastro() {
     };
 
     return (
-        <div className="font-pressStart w-screen h-screen flex flex-col bg-primaryWhite">
+        <div className="font-pressStart w-full min-h-screen flex flex-col bg-primaryWhite overflow-y-auto">
             <Toaster position="top-right" />
             <Header />
-            <div className="h-screen w-screen flex flex-col justify-center items-center">
+
+            <div className="flex-1 w-full flex flex-col justify-center items-center px-4 pt-24 pb-20">
                 <form
                     onSubmit={handleSubmit}
-                    className="flex flex-col w-2/4 bg-lightGreen gap-8 justify-center items-center rounded-2xl p-8 shadow-lg"
+                    className="flex flex-col w-full max-w-lg md:w-2/3 lg:w-1/2 bg-lightGreen gap-6 justify-center items-center p-8 border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]"
                 >
-                    <h2 className="font-bold text-2xl text-primaryWhite">Bem vindo!</h2>
+                    <h2 className="font-bold text-base md:text-xl text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] text-center mb-2">
+                        BEM-VINDO(A)!
+                    </h2>
 
                     <input
-                        className="w-3/5 p-3 border-2 bg-primaryWhite border-goldenYellow rounded-lg text-textBlack focus:outline-none focus:ring-2 focus:ring-vibratingBlue transition duration-200"
+                        className="w-full md:w-4/5 p-4 border-4 bg-primaryWhite border-black text-[10px] md:text-xs text-textBlack focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200"
                         type="text"
                         placeholder="Nome"
                         value={nome}
@@ -73,7 +76,7 @@ export default function Cadastro() {
                     />
 
                     <input
-                        className="w-3/5 p-3 border-2 bg-primaryWhite border-goldenYellow rounded-lg text-textBlack focus:outline-none focus:ring-2 focus:ring-vibratingBlue transition duration-200"
+                        className="w-full md:w-4/5 p-4 border-4 bg-primaryWhite border-black text-[10px] md:text-xs text-textBlack focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200"
                         type="email"
                         placeholder="E-mail"
                         value={email}
@@ -81,23 +84,23 @@ export default function Cadastro() {
                         required
                     />
 
-                    <div className="relative w-3/5">
+                    <div className="relative w-full md:w-4/5">
                         <input
-                            className="w-full p-3 border-2 bg-primaryWhite border-goldenYellow rounded-lg text-textBlack focus:outline-none transition duration-200 pr-10"
+                            className="w-full p-4 border-4 bg-primaryWhite border-black text-[10px] md:text-xs text-textBlack focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200 pr-12"
                             type={showPassword ? "text" : "password"}
                             placeholder="Senha"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-4 flex items-center text-textBlack hover:scale-110 transition-transform">
                             {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
                         </button>
                     </div>
 
-                    <div className="relative w-3/5">
+                    <div className="relative w-full md:w-4/5 mb-4">
                         <input
-                            className={`w-full p-3 border-2 ${error ? "border-red-500" : "border-goldenYellow"} bg-primaryWhite rounded-lg text-textBlack focus:outline-none transition duration-200 pr-10`}
+                            className={`w-full p-4 border-4 ${error ? "border-crimsonRed" : "border-black"} bg-primaryWhite text-[10px] md:text-xs text-textBlack focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200 pr-12`}
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder="Confirmar Senha"
                             value={confirmPassword}
@@ -108,17 +111,21 @@ export default function Cadastro() {
                             }}
                             required
                         />
-                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-4 flex items-center text-textBlack hover:scale-110 transition-transform">
                             {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
                         </button>
-                        {error && <p className="absolute -bottom-6 left-0 text-sm text-red-500">{error}</p>}
+                        {error && (
+                            <p className="absolute -bottom-6 left-0 text-[8px] md:text-[10px] text-primaryWhite bg-crimsonRed border-2 border-black px-2 py-0.5 font-bold">
+                                {error}
+                            </p>
+                        )}
                     </div>
 
                     <button
                         type="submit"
-                        className="mt-4 bg-vibratingBlue text-primaryWhite font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-200"
+                        className="mt-2 w-full md:w-4/5 bg-vibratingBlue text-primaryWhite font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase"
                     >
-                        Cadastrar
+                        CADASTRAR
                     </button>
                 </form>
             </div>
