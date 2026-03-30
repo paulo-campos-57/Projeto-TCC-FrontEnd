@@ -9,6 +9,7 @@ import UsuarioHome from './pages/game/UsuarioHome'
 import Perfil from './pages/game/Perfil'
 import PaginaJogoCadastro from './pages/game/PaginaJogoCadastro'
 import TelaDeJogoCadastro from './pages/game/TelaDeJogoCadastro'
+import Tutorial from './pages/auth/Tutorial'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/PaginaJogoCadastro" element={< PaginaJogoCadastro />} />
         <Route path="/TelaDeJogoCadastro" element={< TelaDeJogoCadastro />} />
         <Route path="/Perfil" element={< Perfil />} />
+        <Route path="/Tutorial" element={< Tutorial />} />
       </Routes>
     </>
   )
