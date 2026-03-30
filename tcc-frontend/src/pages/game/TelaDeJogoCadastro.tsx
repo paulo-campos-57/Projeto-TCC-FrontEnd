@@ -453,6 +453,7 @@ export default function TelaDeJogoCadastro() {
                                 <div className="grid grid-cols-2 gap-3 flex-1">
                                     {catalogo.map(item => {
                                         const qtd = sessao.estoque.find(e => e.nome === item.nome)?.quantidade ?? 0;
+                                        const podeDevolver = qtd >= item.porcao;
                                         return (
                                             <div key={item.nome}
                                                 className="border-2 border-gray-100 rounded-xl p-3 bg-gray-50 flex flex-col gap-2">
@@ -466,13 +467,19 @@ export default function TelaDeJogoCadastro() {
                                                     <p>Estoque: <strong>{qtd}</strong></p>
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    <button onClick={() => handleDevolver(item.nome)} disabled={qtd <= 0}
+                                                    <button
+                                                        onClick={() => handleDevolver(item.nome)}
+                                                        disabled={!podeDevolver}
                                                         className={`flex-1 py-1.5 rounded-lg font-bold text-lg
-                                                            ${qtd > 0 ? "bg-crimsonRed text-white hover:opacity-80"
+                                                            ${podeDevolver
+                                                                ? "bg-crimsonRed text-white hover:opacity-80"
                                                                 : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>−</button>
-                                                    <button onClick={() => handleComprar(item.nome)} disabled={sessao.budget < item.preco}
+                                                    <button
+                                                        onClick={() => handleComprar(item.nome)}
+                                                        disabled={sessao.budget < item.preco}
                                                         className={`flex-1 py-1.5 rounded-lg font-bold text-lg
-                                                            ${sessao.budget >= item.preco ? "bg-lightGreen text-white hover:opacity-80"
+                                                            ${sessao.budget >= item.preco
+                                                                ? "bg-lightGreen text-white hover:opacity-80"
                                                                 : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>+</button>
                                                 </div>
                                             </div>
