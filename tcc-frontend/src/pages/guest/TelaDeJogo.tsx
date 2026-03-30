@@ -272,14 +272,14 @@ export default function TelaDeJogo() {
     };
 
     return (
-        <div className="font-pressStart w-screen h-screen flex flex-col bg-primaryWhite relative">
+        <div className="font-pressStart w-full min-h-screen flex flex-col bg-primaryWhite relative overflow-y-auto">
             <Header />
 
             {/* Conteúdo do jogo */}
             {!showPopup && (
-                <div className="h-full flex flex-col justify-center items-center">
+                <div className="flex-1 w-full flex flex-col justify-start items-center px-4 pt-24 pb-20 max-w-7xl mx-auto">
                     {/* Painel superior */}
-                    <div className="w-full h-24 flex justify-around items-center">
+                    <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
                         {[
                             `Bairro: ${bairro}`,
                             `Orçamento: R$ ${budget}`,
@@ -288,13 +288,7 @@ export default function TelaDeJogo() {
                         ].map((text, i) => (
                             <div
                                 key={i}
-                                className="relative inline-block bg-vibratingBlue text-black text-sm px-4 py-2 border-4 border-[#FFD700]
-                                drop-shadow-[4px_0_#FFD700] drop-shadow-[-4px_0_#FFD700]
-                                drop-shadow-[0_4px_#FFD700] drop-shadow-[0_-4px_#FFD700]
-                                drop-shadow-[4px_4px_#FFD700] drop-shadow-[-4px_4px_#FFD700]
-                                drop-shadow-[4px_-4px_#FFD700] drop-shadow-[-4px_-4px_#FFD700]
-                                [clip-path:polygon(0_8px,8px_8px,8px_0,calc(100%-8px)_0,calc(100%-8px)_8px,100%_8px,100%_calc(100%-8px),calc(100%-8px)_calc(100%-8px),calc(100%-8px)_100%,8px_100%,8px_calc(100%-8px),0_calc(100%-8px))]
-                                flex items-center justify-center"
+                                className="bg-vibratingBlue text-primaryWhite text-[8px] md:text-[10px] font-bold px-4 py-3 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] uppercase flex items-center justify-center text-center"
                             >
                                 {text}
                             </div>
@@ -303,39 +297,48 @@ export default function TelaDeJogo() {
                         {/* Botão de pausa */}
                         <button
                             onClick={togglePause}
-                            className={`relative inline-block text-sm font-bold px-4 py-2 border-4 
-                                ${isPaused ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}
-                                border-[#FFD700] text-white
-                                drop-shadow-[2px_2px_#FFD700] [clip-path:polygon(0_8px,8px_8px,8px_0,calc(100%-8px)_0,calc(100%-8px)_8px,100%_8px,100%_calc(100%-8px),calc(100%-8px)_calc(100%-8px),calc(100%-8px)_100%,8px_100%,8px_calc(100%-8px),0_calc(100%-8px))]
+                            className={`text-[8px] md:text-[10px] font-bold px-4 py-3 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] uppercase transition-all duration-200
+                                ${isPaused
+                                    ? "bg-lightGreen text-textBlack hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
+                                    : "bg-crimsonRed text-primaryWhite hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"}
                             `}
                         >
-                            {isPaused ? "▶ Retomar" : "⏸ Pausar"}
+                            {isPaused ? "▶ RETOMAR" : "⏸ PAUSAR"}
                         </button>
                     </div>
 
-                    <h1 className="text-2xl mt-4">Bem-vindo ao Jogo!</h1>
+                    <h1 className="text-sm md:text-xl font-bold text-textBlack uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)] mt-4 mb-8 text-center">
+                        BEM-VINDO AO JOGO!
+                    </h1>
 
-                    <div className="w-full max-w-lg mt-6">
-                        <h2 className="text-lg mb-2">Ingredientes Comprados:</h2>
-                        {showIngredients()}
+                    <div className="w-full max-w-2xl mt-6 bg-lightGreen border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-6">
+                        <h2 className="text-[10px] md:text-xs font-bold text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase mb-4 text-center">
+                            Ingredientes Comprados:
+                        </h2>
+                        {/* Como o showIngredients() retorna elementos internos, assumo que eles se adaptarão ao contêiner, ou você pode estilizá-los lá dentro depois */}
+                        <div className="text-[8px] md:text-[10px] text-textBlack">
+                            {showIngredients()}
+                        </div>
                     </div>
 
-                    <div className="text-center mt-6">
-                        <h2 className="text-xl">👥 Clientes chegando...</h2>
-                        <p className="text-lg mt-2">
-                            Clientes atendidos hoje: <strong>{clientesHoje}</strong> / {clientesGerados || "??"}
+                    <div className="w-full max-w-2xl mt-8 bg-goldenYellow border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-6 text-center">
+                        <h2 className="text-[10px] md:text-xs font-bold text-textBlack uppercase mb-4">
+                            👥 Clientes chegando...
+                        </h2>
+                        <p className="text-[10px] md:text-xs text-textBlack mt-2 uppercase">
+                            Atendidos hoje: <strong className="text-primaryWhite drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]">{clientesHoje}</strong> / {clientesGerados || "??"}
                         </p>
                         {totalClientesDia > 0 && (
-                            <p className="text-green-600 mt-2 font-bold">
+                            <p className="text-[10px] md:text-xs text-vibratingBlue mt-4 font-bold uppercase drop-shadow-[1px_1px_0px_rgba(0,0,0,0.2)]">
                                 Total de clientes hoje: {totalClientesDia}
                             </p>
                         )}
                     </div>
 
                     {/* Lista opcional para debug/visualização */}
-                    <div className="mt-4 max-h-40 overflow-y-auto text-sm text-center">
+                    <div className="mt-8 w-full max-w-2xl max-h-40 overflow-y-auto text-[8px] text-center bg-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-4">
                         {clientes.map((c, i) => (
-                            <div key={i} className="border-b border-gray-300 py-1">
+                            <div key={i} className="border-b-4 border-black py-2 uppercase text-textBlack last:border-0">
                                 Cliente {i + 1}: {c.bairro.nome} — {c.bairro.preferenciaTapioca} — satisfação {c.satisfacao}%
                             </div>
                         ))}
@@ -345,40 +348,50 @@ export default function TelaDeJogo() {
 
             {/* Popup inicial */}
             {showPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 text-black">
-                    <div className="bg-white w-11/12 md:w-3/4 lg:w-2/3 min-h-[500px] rounded-2xl shadow-xl p-6 flex flex-col justify-between border-4 border-vibratingBlue">
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 px-4">
+                    <div className="bg-primaryWhite w-full max-w-4xl max-h-[90vh] overflow-y-auto border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-6 md:p-8 flex flex-col justify-between">
 
                         {/* ETAPA 1: COMPRA DE INGREDIENTES */}
                         {popupStep === 1 && (
                             <>
                                 <div>
-                                    <h2 className="text-2xl text-center mb-4 font-bold">🛒 Fase 1: Estoque</h2>
-                                    <div className="text-center mb-6 bg-yellow-100 p-2 rounded-lg">
-                                        <p className="text-xl">💰 Orçamento: R$ {budget}</p>
+                                    <h2 className="text-sm md:text-xl text-center mb-6 font-bold text-textBlack uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
+                                        🛒 Fase 1: Estoque
+                                    </h2>
+                                    <div className="text-center mb-8 bg-goldenYellow p-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                        <p className="text-xs md:text-sm font-bold text-textBlack uppercase">
+                                            💰 Orçamento: R$ {budget}
+                                        </p>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         {ingredients.map((item, index) => (
-                                            <div key={index} className="border-2 border-gray-200 rounded-xl p-3 text-center bg-gray-50 flex flex-col justify-between">
+                                            <div key={index} className="border-4 border-black p-4 text-center bg-lightGreen shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                                                 <div>
-                                                    <p className="font-bold text-sm mb-1">{item.nome}</p>
-                                                    <p className="text-[10px] text-blue-600 font-bold mb-2 uppercase tracking-tight">
+                                                    <p className="font-bold text-[10px] md:text-xs mb-2 text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase">
+                                                        {item.nome}
+                                                    </p>
+                                                    <p className="text-[8px] md:text-[10px] text-textBlack font-bold mb-4 uppercase">
                                                         📦 Rende: {item.porcao} porções
                                                     </p>
-                                                    <div className="bg-white rounded-lg py-2 mb-2 border border-gray-100">
-                                                        <p className="text-xs">Preço: <span className="text-green-600 font-bold">R$ {item.preco}</span></p>
-                                                        <p className="text-xs">No estoque: <strong>{item.quantidade}</strong></p>
+                                                    <div className="bg-primaryWhite border-4 border-black py-3 mb-4">
+                                                        <p className="text-[8px] md:text-[10px] text-textBlack uppercase mb-2 font-bold">
+                                                            Preço: <span className="text-vibratingBlue drop-shadow-[1px_1px_0px_rgba(0,0,0,0.2)]">R$ {item.preco}</span>
+                                                        </p>
+                                                        <p className="text-[8px] md:text-[10px] text-textBlack uppercase font-bold">
+                                                            No estoque: <strong className="text-crimsonRed text-xs">{item.quantidade}</strong>
+                                                        </p>
                                                     </div>
                                                 </div>
 
                                                 {/* Controles de compra e venda */}
-                                                <div className="flex items-center justify-between gap-2 mt-2">
+                                                <div className="flex items-center justify-between gap-4 mt-2">
                                                     <button
                                                         onClick={() => removeIngredient(index)}
                                                         disabled={item.quantidade <= 0}
-                                                        className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${item.quantidade > 0
-                                                            ? "bg-red-500 text-white hover:bg-red-600"
-                                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                        className={`flex-1 py-3 border-4 border-black font-bold text-xs md:text-sm uppercase transition-all duration-200 ${item.quantidade > 0
+                                                            ? "bg-crimsonRed text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
+                                                            : "bg-gray-400 text-gray-600 shadow-[4px_4px_0px_rgba(100,100,100,1)] cursor-not-allowed"
                                                             }`}
                                                     >
                                                         -
@@ -387,9 +400,9 @@ export default function TelaDeJogo() {
                                                     <button
                                                         onClick={() => buyIngredient(index)}
                                                         disabled={budget < item.preco}
-                                                        className={`flex-1 py-2 rounded-lg text-lg font-bold transition-all ${budget >= item.preco
-                                                            ? "bg-green-500 text-white hover:bg-green-600"
-                                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                        className={`flex-1 py-3 border-4 border-black font-bold text-xs md:text-sm uppercase transition-all duration-200 ${budget >= item.preco
+                                                            ? "bg-lightGreen text-textBlack shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
+                                                            : "bg-gray-400 text-gray-600 shadow-[4px_4px_0px_rgba(100,100,100,1)] cursor-not-allowed"
                                                             }`}
                                                     >
                                                         +
@@ -401,9 +414,9 @@ export default function TelaDeJogo() {
                                 </div>
                                 <button
                                     onClick={handleNextStep}
-                                    className="mt-6 px-6 py-3 bg-vibratingBlue text-white rounded-xl font-bold hover:bg-blue-700 transition"
+                                    className="mt-8 w-full px-6 py-4 bg-vibratingBlue text-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                                 >
-                                    Definir Receita →
+                                    DEFINIR RECEITA →
                                 </button>
                             </>
                         )}
@@ -411,42 +424,44 @@ export default function TelaDeJogo() {
                         {/* ETAPA 2: RECEITA */}
                         {popupStep === 2 && (
                             <div className="flex flex-col h-full">
-                                <h2 className="text-2xl text-center mb-2 font-bold">📋 Fase 2: Sua Receita</h2>
-                                <p className="text-center text-gray-500 text-[10px] mb-4 font-pressStart">
-                                    Quantas porções de cada item vai em cada tapioca?
+                                <h2 className="text-sm md:text-xl text-center mb-4 font-bold text-textBlack uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
+                                    📋 Fase 2: Sua Receita
+                                </h2>
+                                <p className="text-center text-textBlack text-[8px] md:text-[10px] mb-8 uppercase leading-loose">
+                                    Quantas porções de cada item <br /> vai em cada tapioca?
                                 </p>
 
-                                <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+                                <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                                     {ingredients
                                         .filter(ing => ing.quantidade > 0)
                                         .map((ing, index) => (
-                                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl border-2 border-dashed border-gray-300">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-sm">{ing.nome}</span>
-                                                    <span className="text-[10px] text-blue-600 font-bold">
-                                                        Estoque Total: {ing.quantidade} unidades
+                                            <div key={index} className="flex flex-col sm:flex-row items-center justify-between bg-primaryWhite p-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] gap-4">
+                                                <div className="flex flex-col text-center sm:text-left">
+                                                    <span className="font-bold text-[10px] md:text-xs uppercase text-textBlack mb-2">{ing.nome}</span>
+                                                    <span className="text-[8px] text-vibratingBlue font-bold uppercase">
+                                                        Estoque: {ing.quantidade} un.
                                                     </span>
                                                 </div>
 
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-4">
                                                     <button
                                                         onClick={() => alterarReceita(ing.nome, -1)}
-                                                        className="w-8 h-8 bg-red-400 text-white rounded-lg font-bold hover:bg-red-500"
+                                                        className="w-10 h-10 bg-crimsonRed text-primaryWhite border-4 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] font-bold text-sm"
                                                     >-</button>
 
-                                                    <div className="flex flex-col items-center">
-                                                        <span className="font-bold text-lg leading-none">
+                                                    <div className="flex flex-col items-center w-16">
+                                                        <span className="font-bold text-sm md:text-base leading-none text-textBlack mb-1">
                                                             {receita[ing.nome] || 0}
                                                         </span>
-                                                        <span className="text-[8px] uppercase">na tapioca</span>
+                                                        <span className="text-[6px] md:text-[8px] uppercase text-textBlack font-bold text-center">na tapioca</span>
                                                     </div>
 
                                                     <button
                                                         onClick={() => alterarReceita(ing.nome, 1)}
                                                         disabled={(receita[ing.nome] || 0) >= ing.quantidade}
-                                                        className={`w-8 h-8 rounded-lg font-bold ${(receita[ing.nome] || 0) >= ing.quantidade
-                                                            ? "bg-gray-300 cursor-not-allowed"
-                                                            : "bg-green-400 text-white hover:bg-green-500"
+                                                        className={`w-10 h-10 border-4 border-black font-bold text-sm transition-all duration-200 ${(receita[ing.nome] || 0) >= ing.quantidade
+                                                            ? "bg-gray-400 text-gray-600 shadow-[2px_2px_0px_rgba(100,100,100,1)] cursor-not-allowed"
+                                                            : "bg-lightGreen text-textBlack shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
                                                             }`}
                                                     >+</button>
                                                 </div>
@@ -454,22 +469,24 @@ export default function TelaDeJogo() {
                                         ))
                                     }
                                     {ingredients.filter(ing => ing.quantidade > 0).length === 0 && (
-                                        <p className="text-center text-red-500 mt-10">Você não comprou ingredientes!</p>
+                                        <p className="text-center text-crimsonRed font-bold text-[10px] mt-10 uppercase bg-primaryWhite border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                            Você não comprou ingredientes!
+                                        </p>
                                     )}
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-center gap-4">
+                                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                                     <button
                                         onClick={() => setPopupStep(1)}
-                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs"
+                                        className="w-full sm:w-auto px-6 py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                                     >
-                                        Voltar
+                                        VOLTAR
                                     </button>
                                     <button
                                         onClick={() => setPopupStep(3)} // Avança para o preço (Step 3)
-                                        className="px-8 py-3 bg-vibratingBlue text-white rounded-xl font-bold hover:bg-blue-700 transition text-xs"
+                                        className="w-full sm:w-auto px-8 py-4 bg-vibratingBlue text-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                                     >
-                                        Definir Preço →
+                                        DEFINIR PREÇO →
                                     </button>
                                 </div>
                             </div>
@@ -477,41 +494,43 @@ export default function TelaDeJogo() {
 
                         {/* ETAPA 3: DEFINIÇÃO DE PREÇO */}
                         {popupStep === 3 && (
-                            <div className="flex flex-col items-center justify-center flex-1">
-                                <h2 className="text-2xl text-center mb-6 font-bold">💰 Fase 3: Precificação</h2>
-                                <p className="text-center mb-8 text-gray-600">
-                                    Por quanto você vai vender cada tapioca no bairro <strong>{bairro}</strong>?
+                            <div className="flex flex-col items-center justify-center flex-1 py-10">
+                                <h2 className="text-sm md:text-xl text-center mb-8 font-bold text-textBlack uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
+                                    💰 Fase 3: Precificação
+                                </h2>
+                                <p className="text-center mb-12 text-textBlack text-[8px] md:text-[10px] uppercase leading-loose">
+                                    Por quanto você vai vender <br /> cada tapioca no bairro <br /> <strong className="text-vibratingBlue">{bairro}</strong>?
                                 </p>
 
-                                <div className="flex items-center gap-6 mb-10">
+                                <div className="flex items-center gap-8 mb-16 bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8">
                                     <button
                                         onClick={() => setPrecoTapioca(Math.max(1, precoTapioca - 1))}
-                                        className="w-12 h-12 bg-red-500 text-white rounded-full text-2xl font-bold"
+                                        className="w-12 h-12 bg-crimsonRed text-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] font-bold text-xl"
                                     >-</button>
 
-                                    <div className="text-center">
-                                        <span className="text-4xl font-bold text-green-600">R$ {precoTapioca}</span>
-                                        <p className="text-xs text-gray-400 mt-2">Preço por unidade</p>
+                                    <div className="text-center min-w-[120px]">
+                                        <span className="text-xl md:text-2xl font-bold text-lightGreen drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">R$ {precoTapioca}</span>
+                                        <p className="text-[8px] text-textBlack mt-4 uppercase font-bold">Por unidade</p>
                                     </div>
 
                                     <button
                                         onClick={() => setPrecoTapioca(precoTapioca + 1)}
-                                        className="w-12 h-12 bg-green-500 text-white rounded-full text-2xl font-bold"
+                                        className="w-12 h-12 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] font-bold text-xl"
                                     >+</button>
                                 </div>
 
-                                <div className="flex gap-4">
+                                <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                                     <button
                                         onClick={() => setPopupStep(2)}
-                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold"
+                                        className="w-full sm:w-auto px-6 py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                                     >
-                                        Voltar
+                                        VOLTAR
                                     </button>
                                     <button
                                         onClick={handleStartGame}
-                                        className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:animate-pulse"
+                                        className="w-full sm:w-auto px-8 py-4 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                                     >
-                                        Abrir Banquinha! 🚀
+                                        ABRIR BANQUINHA! 🚀
                                     </button>
                                 </div>
                             </div>
@@ -522,11 +541,11 @@ export default function TelaDeJogo() {
 
             {/* Popup de ingredientes esgotados */}
             {showOutOfStockPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
-                        <h2 className="text-2xl mb-4">⚠️ Estoque Esgotado!</h2>
-                        <p className="mb-6 font-pressStart text-xs leading-loose">
-                            Você não tem mais ingredientes. As vendas foram encerradas mais cedo hoje!
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-md">
+                        <h2 className="text-sm md:text-lg mb-6 font-bold text-crimsonRed uppercase drop-shadow-[1px_1px_0px_rgba(0,0,0,0.2)]">⚠️ ESTOQUE ESGOTADO!</h2>
+                        <p className="mb-8 font-pressStart text-[8px] md:text-[10px] text-textBlack leading-loose uppercase">
+                            Você não tem mais ingredientes. <br /> As vendas foram encerradas <br /> mais cedo hoje!
                         </p>
                         <button
                             onClick={() => {
@@ -537,9 +556,9 @@ export default function TelaDeJogo() {
                                     setShowEndOfDayPopup(true);
                                 }
                             }}
-                            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold"
+                            className="w-full px-6 py-4 bg-crimsonRed text-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                         >
-                            Ver Resultados
+                            VER RESULTADOS
                         </button>
                     </div>
                 </div>
@@ -547,24 +566,26 @@ export default function TelaDeJogo() {
 
             {/* Popup de fim de dia */}
             {showEndOfDayPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 text-black">
-                    <div className="bg-white rounded-3xl shadow-2xl p-8 text-center w-full max-w-sm border-4 border-vibratingBlue">
-                        <h2 className="text-2xl mb-6 font-bold uppercase tracking-tighter">🌙 Balanço do Dia {diaAtual}</h2>
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-md">
+                        <h2 className="text-sm md:text-lg mb-8 font-bold text-textBlack uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
+                            🌙 BALANÇO DO DIA {diaAtual}
+                        </h2>
 
-                        <div className="space-y-4 mb-8">
-                            <div className="flex justify-between items-center border-b pb-2">
-                                <span className="text-gray-600 text-xs">Faturamento:</span>
-                                <span className="text-green-600 font-bold">R$ {faturamentoHoje}</span>
+                        <div className="space-y-6 mb-10 bg-lightGreen border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-6">
+                            <div className="flex justify-between items-center border-b-4 border-black pb-4">
+                                <span className="text-[8px] md:text-[10px] text-textBlack uppercase font-bold">Faturamento:</span>
+                                <span className="text-[10px] md:text-xs text-primaryWhite drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] font-bold">R$ {faturamentoHoje}</span>
                             </div>
 
-                            <div className="flex justify-between items-center border-b pb-2">
-                                <span className="text-gray-600 text-xs">Gastos (Estoque):</span>
-                                <span className="text-red-500 font-bold">R$ {gastoHoje}</span>
+                            <div className="flex justify-between items-center border-b-4 border-black pb-4">
+                                <span className="text-[8px] md:text-[10px] text-textBlack uppercase font-bold">Gastos (Estoque):</span>
+                                <span className="text-[10px] md:text-xs text-crimsonRed drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)] font-bold">R$ {gastoHoje}</span>
                             </div>
 
-                            <div className="flex justify-between items-center bg-gray-100 p-3 rounded-xl">
-                                <span className="font-bold text-sm">Lucro Líquido:</span>
-                                <span className={`text-lg font-bold ${faturamentoHoje - gastoHoje >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                            <div className="flex flex-col gap-2 bg-primaryWhite border-4 border-black p-4 mt-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                <span className="font-bold text-[8px] md:text-[10px] uppercase text-textBlack">Lucro Líquido:</span>
+                                <span className={`text-xs md:text-sm font-bold mt-2 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.2)] ${faturamentoHoje - gastoHoje >= 0 ? 'text-lightGreen' : 'text-crimsonRed'}`}>
                                     R$ {faturamentoHoje - gastoHoje}
                                 </span>
                             </div>
@@ -572,7 +593,7 @@ export default function TelaDeJogo() {
 
                         <button
                             onClick={nextDay}
-                            className="w-full px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold shadow-lg transition-transform active:scale-95"
+                            className="w-full px-6 py-4 bg-vibratingBlue text-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                         >
                             PRÓXIMO DIA →
                         </button>
@@ -582,18 +603,18 @@ export default function TelaDeJogo() {
 
             {/* Popup de fim de jogo */}
             {showGameOverPopup && (
-                <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center w-96">
-                        <h2 className="text-2xl mb-4">🎉 Fim do Jogo!</h2>
-                        <p className="mb-6">
-                            Você completou todos os {limiteDeDias} dias de jogo! <br />
-                            Parabéns pelo seu desempenho!
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-md">
+                        <h2 className="text-sm md:text-lg mb-6 font-bold text-vibratingBlue uppercase drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">🎉 FIM DO JOGO!</h2>
+                        <p className="mb-8 font-pressStart text-[8px] md:text-[10px] text-textBlack leading-loose uppercase">
+                            Você completou todos <br /> os {limiteDeDias} dias de jogo! <br /><br />
+                            Parabéns pelo seu <br /> desempenho!
                         </p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold"
+                            className="w-full px-6 py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase font-bold text-[10px] md:text-xs"
                         >
-                            Reiniciar Jogo
+                            REINICIAR JOGO
                         </button>
                     </div>
                 </div>

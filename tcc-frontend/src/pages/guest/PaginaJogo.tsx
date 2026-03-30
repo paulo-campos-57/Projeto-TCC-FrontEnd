@@ -103,11 +103,11 @@ export default function PaginaJogo() {
     ];
 
     return (
-        <div className="w-screen h-screen font-pressStart flex flex-col bg-primaryWhite relative">
+        <div className="w-full min-h-screen font-pressStart flex flex-col bg-primaryWhite relative overflow-y-auto">
             <Header />
 
-            <div className="flex flex-1 flex-col lg:flex-row gap-8 justify-center items-center p-6">
-                <div className="w-full lg:w-3/5 h-[70vh] rounded-2xl overflow-hidden shadow-lg">
+            <div className="flex flex-1 flex-col lg:flex-row gap-8 justify-center items-center px-4 pt-24 pb-20 max-w-7xl mx-auto w-full">
+                <div className="w-full lg:w-3/5 h-[50vh] lg:h-[70vh] border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-primaryWhite z-0">
                     {!showPopup && (
                         <MapContainer
                             center={center}
@@ -142,7 +142,7 @@ export default function PaginaJogo() {
                                         offset={[0, -10]}
                                         opacity={1}
                                         permanent={false}
-                                        className="font-pressStart text-xs"
+                                        className="font-pressStart text-[8px]"
                                     >
                                         {bairro.nome}
                                     </Tooltip>
@@ -152,58 +152,62 @@ export default function PaginaJogo() {
                     )}
                 </div>
 
-                {/* Lateral de informações */}
                 {!showPopup && (
-                    <div className="w-full lg:w-2/5 bg-white rounded-2xl shadow-xl p-6 text-center flex flex-col justify-center items-center">
+                    <div className="w-full lg:w-2/5 bg-lightGreen border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 text-center flex flex-col justify-center items-center min-h-[50vh] lg:min-h-[70vh]">
                         {selectedNeighborhood ? (
                             <>
-                                <h2 className="text-xl font-bold text-textBlack mb-4">
+                                <h2 className="text-base md:text-xl font-bold text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase mb-6">
                                     {selectedNeighborhood.nome}
                                 </h2>
-                                <p className="text-gray-700 text-sm mb-2">{selectedNeighborhood.descricao}</p>
-                                <p className="text-gray-800 text-sm mt-2">
-                                    <strong>Foco de Preço:</strong> {selectedNeighborhood.focoPreco}
+                                <p className="text-textBlack text-[10px] md:text-xs mb-4 leading-relaxed">
+                                    {selectedNeighborhood.descricao}
                                 </p>
-                                <p className="text-gray-800 text-sm">
-                                    <strong>Expectativa:</strong> {selectedNeighborhood.expectativa}
+                                <p className="text-textBlack text-[10px] md:text-xs mt-2 mb-2">
+                                    <strong className="text-primaryWhite drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] uppercase">Foco de Preço:</strong> {selectedNeighborhood.focoPreco}
+                                </p>
+                                <p className="text-textBlack text-[10px] md:text-xs mb-6">
+                                    <strong className="text-primaryWhite drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] uppercase">Expectativa:</strong> {selectedNeighborhood.expectativa}
                                 </p>
                                 <button
                                     onClick={handleStartGame}
-                                    className="mt-6 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-bold"
+                                    className="mt-auto w-full bg-vibratingBlue text-primaryWhite font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase"
                                 >
                                     Iniciar Jogo
                                 </button>
                             </>
                         ) : (
-                            <p className="text-gray-600">Clique em um bairro no mapa para ver os detalhes</p>
+                            <p className="text-[10px] md:text-xs text-textBlack font-bold uppercase leading-loose">
+                                Clique em um bairro <br /> no mapa para ver <br /> os detalhes
+                            </p>
                         )}
                     </div>
                 )}
             </div>
+
             {showPopup && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50">
-                    <div className="bg-white rounded-2xl shadow-xl p-10 w-[90%] max-w-lg text-center flex flex-col gap-6">
-                        <h2 className="text-2xl font-bold text-textBlack">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 w-full max-w-2xl text-center flex flex-col gap-6">
+                        <h2 className="text-sm md:text-xl font-bold text-textBlack uppercase">
                             Tempo de jogo selecionado
                         </h2>
-                        <p className="text-lg text-gray-700 text-center">
+                        <p className="text-[10px] md:text-xs text-textBlack leading-relaxed uppercase">
                             {tempoDeJogo ? (
                                 tempoDeJogo.toLowerCase() === "livre" ? (
                                     <>
-                                        Você escolheu o modo <strong>livre</strong>! <br />
-                                        <hr className="my-4" />
+                                        Você escolheu o modo <strong className="text-vibratingBlue">livre</strong>! <br />
+                                        <hr className="my-6 border-2 border-black" />
                                         Nesse modo, você pode jogar sem limites de tempo —
                                         apenas divirta-se, explore suas estratégias e veja
                                         até onde consegue chegar como mestre das tapiocas!
                                     </>
                                 ) : (
                                     <>
-                                        Você escolheu <strong>{tempoDeJogo}</strong> como tempo de jogo. <br />
-                                        <hr className="my-4" />
+                                        Você escolheu <strong className="text-vibratingBlue">{tempoDeJogo}</strong> como tempo de jogo. <br />
+                                        <hr className="my-6 border-2 border-black" />
                                         Durante esse período, seu objetivo é vender o maior número
                                         possível de tapiocas e acumular a maior quantia de dinheiro
                                         antes que o tempo acabe.
-                                        <br />
+                                        <br /><br />
                                         Boa sorte, vendedor(a)!
                                     </>
                                 )
@@ -212,16 +216,16 @@ export default function PaginaJogo() {
                             )}
                         </p>
 
-                        <div className="flex gap-4 justify-center">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
                             <button
                                 onClick={handleGoBack}
-                                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition font-bold"
+                                className="w-full sm:w-1/2 bg-crimsonRed text-primaryWhite font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase"
                             >
                                 Voltar
                             </button>
                             <button
                                 onClick={handleContinue}
-                                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-bold"
+                                className="w-full sm:w-1/2 bg-lightGreen text-textBlack font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 uppercase"
                             >
                                 Continuar
                             </button>
