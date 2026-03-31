@@ -315,7 +315,6 @@ export default function TelaDeJogo() {
                         <h2 className="text-[10px] md:text-xs font-bold text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase mb-4 text-center">
                             Ingredientes Comprados:
                         </h2>
-                        {/* Como o showIngredients() retorna elementos internos, assumo que eles se adaptarão ao contêiner, ou você pode estilizá-los lá dentro depois */}
                         <div className="text-[8px] md:text-[10px] text-textBlack">
                             {showIngredients()}
                         </div>
@@ -335,7 +334,7 @@ export default function TelaDeJogo() {
                         )}
                     </div>
 
-                    {/* Lista opcional para debug/visualização */}
+                    {/* Lista para debug */}
                     <div className="mt-8 w-full max-w-2xl max-h-40 overflow-y-auto text-[8px] text-center bg-primaryWhite border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-4">
                         {clientes.map((c, i) => (
                             <div key={i} className="border-b-4 border-black py-2 uppercase text-textBlack last:border-0">

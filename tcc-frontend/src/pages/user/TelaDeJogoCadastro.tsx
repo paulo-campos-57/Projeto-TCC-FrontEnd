@@ -35,6 +35,14 @@ function limiteDias(tempo: string): number {
     return 3;
 }
 
+function labelDelta(delta: number): { emoji: string; texto: string; cor: string } {
+    if (delta >= 4) return { emoji: "🌟", texto: "PERFEITO", cor: "bg-lightGreen text-textBlack" };
+    if (delta >= 2) return { emoji: "✅", texto: "BOM", cor: "bg-lightGreen text-textBlack" };
+    if (delta >= 0) return { emoji: "😐", texto: "OK", cor: "bg-goldenYellow text-textBlack" };
+    if (delta >= -2) return { emoji: "⚠️", texto: "RUIM", cor: "bg-crimsonRed text-white" };
+    return { emoji: "❌", texto: "PÉSSIMO", cor: "bg-crimsonRed text-white" };
+}
+
 const DURACAO_DIA = 30;
 const INTERVALO_CLIENTE_MS = 800;
 
@@ -85,7 +93,7 @@ export default function TelaDeJogoCadastro() {
             <div className="h-screen flex flex-col items-center justify-center font-pressStart gap-4">
                 <p className="text-sm">Erro: sessão não encontrada.</p>
                 <button onClick={() => navigate("/JogoCadastro")}
-                    className="bg-vibratingBlue text-white px-6 py-2 rounded-lg text-xs">
+                    className="bg-vibratingBlue text-white px-6 py-2 border-4 border-black text-xs">
                     Voltar
                 </button>
             </div>
@@ -112,23 +120,14 @@ export default function TelaDeJogoCadastro() {
     }, []);
 
     const pararTudo = () => {
-        if (timerIntervalRef.current) {
-            clearInterval(timerIntervalRef.current);
-            timerIntervalRef.current = null;
-        }
-        if (clienteIntervalRef.current) {
-            clearInterval(clienteIntervalRef.current);
-            clienteIntervalRef.current = null;
-        }
+        if (timerIntervalRef.current) { clearInterval(timerIntervalRef.current); timerIntervalRef.current = null; }
+        if (clienteIntervalRef.current) { clearInterval(clienteIntervalRef.current); clienteIntervalRef.current = null; }
         setIsRunning(false);
     };
 
     const abrirPopupFimDia = (snapshot: SessaoSnapshot) => {
-        if (snapshot.dia_atual >= totalDias) {
-            setShowGameOverPopup(true);
-        } else {
-            setShowEndOfDayPopup(true);
-        }
+        if (snapshot.dia_atual >= totalDias) setShowGameOverPopup(true);
+        else setShowEndOfDayPopup(true);
     };
 
     const iniciarTimer = () => {
@@ -158,78 +157,52 @@ export default function TelaDeJogoCadastro() {
         _snapshot: SessaoSnapshot,
     ) => {
         if (clienteIntervalRef.current) clearInterval(clienteIntervalRef.current);
-
         clienteIntervalRef.current = setInterval(() => {
             if (isPausedRef.current) return;
-
             const atual = clientesExibRef.current;
-
             if (atual >= totalAtendidos) {
                 clearInterval(clienteIntervalRef.current!);
                 clienteIntervalRef.current = null;
-
-                if (esgotado) {
-                    pararTudo();
-                    setShowEstoqueEsgotado(true);
-                }
+                if (esgotado) { pararTudo(); setShowEstoqueEsgotado(true); }
                 return;
             }
-
             const proximo = atual + 1;
             setClientesExibidos(proximo);
             clientesExibRef.current = proximo;
-
             const novoEstoque = { ...estoqueLocalRef.current };
             Object.keys(receita).forEach(nome => {
-                if ((receita[nome] ?? 0) > 0) {
+                if ((receita[nome] ?? 0) > 0)
                     novoEstoque[nome] = Math.max(0, (novoEstoque[nome] ?? 0) - (receita[nome] ?? 0));
-                }
             });
             setEstoqueLocal(novoEstoque);
             estoqueLocalRef.current = novoEstoque;
-
         }, INTERVALO_CLIENTE_MS);
     };
 
     const handleStartGame = async () => {
         if (!sessaoId || !sessao) return;
-        if (sessao.tapiocas_possiveis === 0) {
-            toast.error("Estoque insuficiente para iniciar o dia!");
-            return;
-        }
-
+        if (sessao.tapiocas_possiveis === 0) { toast.error("Estoque insuficiente para iniciar o dia!"); return; }
         setIsProcessando(true);
         const t = toast.loading("Abrindo barraca...");
         try {
             const resultado = await processarDia(sessaoId);
             toast.dismiss(t);
-
             resultadoRef.current = resultado;
             setResultadoDia(resultado);
             setSessao(resultado.sessao);
             setGastoHoje(resultado.sessao.gasto_hoje);
-
             const estoqueInicial: Record<string, number> = {};
             sessao.estoque.forEach(i => { estoqueInicial[i.nome] = i.quantidade; });
             setEstoqueLocal(estoqueInicial);
             estoqueLocalRef.current = estoqueInicial;
             setReceitaLocal(sessao.receita);
             receitaLocalRef.current = sessao.receita;
-
             setClientesExibidos(0);
             clientesExibRef.current = 0;
-
             setShowSetupPopup(false);
             setTempoRestante(DURACAO_DIA);
-
             iniciarTimer();
-            iniciarAnimacaoClientes(
-                resultado.clientes_atendidos,
-                estoqueInicial,
-                sessao.receita,
-                resultado.estoque_esgotado,
-                resultado.sessao,
-            );
+            iniciarAnimacaoClientes(resultado.clientes_atendidos, estoqueInicial, sessao.receita, resultado.estoque_esgotado, resultado.sessao);
         } catch (e) {
             toast.error(e instanceof Error ? e.message : "Erro ao iniciar.", { id: t });
         } finally {
@@ -239,9 +212,7 @@ export default function TelaDeJogoCadastro() {
 
     const handleFecharEstoqueEsgotado = () => {
         setShowEstoqueEsgotado(false);
-        if (resultadoRef.current) {
-            abrirPopupFimDia(resultadoRef.current.sessao);
-        }
+        if (resultadoRef.current) abrirPopupFimDia(resultadoRef.current.sessao);
     };
 
     const nextDay = async () => {
@@ -270,11 +241,7 @@ export default function TelaDeJogoCadastro() {
         if (!sessaoId) return;
         try {
             const r = await comprarIngrediente(sessaoId, nome);
-            setSessao(prev => prev ? {
-                ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje,
-                estoque: prev.estoque.map(i =>
-                    i.nome === nome ? { ...i, quantidade: r.quantidade } : i),
-            } : prev);
+            setSessao(prev => prev ? { ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje, estoque: prev.estoque.map(i => i.nome === nome ? { ...i, quantidade: r.quantidade } : i) } : prev);
             setGastoHoje(r.gasto_hoje);
         } catch (e) { toast.error(e instanceof Error ? e.message : "Erro ao comprar."); }
     };
@@ -283,11 +250,7 @@ export default function TelaDeJogoCadastro() {
         if (!sessaoId) return;
         try {
             const r = await devolverIngrediente(sessaoId, nome);
-            setSessao(prev => prev ? {
-                ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje,
-                estoque: prev.estoque.map(i =>
-                    i.nome === nome ? { ...i, quantidade: r.quantidade } : i),
-            } : prev);
+            setSessao(prev => prev ? { ...prev, budget: r.budget, gasto_hoje: r.gasto_hoje, estoque: prev.estoque.map(i => i.nome === nome ? { ...i, quantidade: r.quantidade } : i) } : prev);
             setGastoHoje(r.gasto_hoje);
         } catch (e) { toast.error(e instanceof Error ? e.message : "Erro ao devolver."); }
     };
@@ -315,14 +278,11 @@ export default function TelaDeJogoCadastro() {
     };
 
     const sat = sessao?.satisfacao ?? 5;
-    const satColor = sat >= 7 ? "text-green-400" : sat >= 4 ? "text-yellow-300" : "text-red-400";
+    const satColor = sat >= 7 ? "text-lightGreen" : sat >= 4 ? "text-goldenYellow" : "text-crimsonRed";
 
     const estoqueVisivelNaTela = showSetupPopup
         ? (sessao?.estoque ?? [])
-        : (sessao?.estoque ?? []).map(ing => ({
-            ...ing,
-            quantidade: estoqueLocal[ing.nome] ?? ing.quantidade,
-        }));
+        : (sessao?.estoque ?? []).map(ing => ({ ...ing, quantidade: estoqueLocal[ing.nome] ?? ing.quantidade }));
 
     if (loading || !sessao) {
         return (
@@ -337,7 +297,7 @@ export default function TelaDeJogoCadastro() {
             <Toaster position="top-right" />
             <Header />
 
-            {/*tela do jogo*/}
+            {/* tela do jogo */}
             {!showSetupPopup && (
                 <div className="flex-1 flex flex-col p-4 pt-24 pb-8 gap-6">
 
@@ -349,21 +309,20 @@ export default function TelaDeJogoCadastro() {
                             { label: "Tempo", value: `${tempoRestante}s` },
                             { label: "Caixa", value: `R$ ${sessao.budget.toFixed(2)}` },
                         ].map(({ label, value }) => (
-                            <div key={label}
-                                className="flex flex-col items-center bg-vibratingBlue text-primaryWhite px-5 py-3 
-                                    border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex-1 min-w-[110px]">
+                            <div key={label} className="flex flex-col items-center bg-vibratingBlue text-primaryWhite px-5 py-3
+                                border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex-1 min-w-[110px]">
                                 <span className="text-[8px] uppercase tracking-widest text-goldenYellow">{label}</span>
                                 <span className="text-[10px] md:text-xs font-bold mt-1">{value}</span>
                             </div>
                         ))}
-                        <div className="flex flex-col items-center bg-textBlack text-primaryWhite px-5 py-3 
+                        <div className="flex flex-col items-center bg-textBlack text-primaryWhite px-5 py-3
                             border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex-1 min-w-[110px]">
                             <span className="text-[8px] uppercase tracking-widest text-goldenYellow">Satisfação</span>
                             <span className={`text-[10px] md:text-xs font-bold mt-1 ${satColor}`}>{sat} / 10</span>
                         </div>
                         <button onClick={togglePause}
-                            className={`px-6 py-4 border-4 border-black text-[10px] md:text-xs font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)] 
-                                active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
+                            className={`px-6 py-4 border-4 border-black text-[10px] md:text-xs font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)]
+                                active:translate-y-1 active:shadow-none transition-all
                                 ${isPaused ? "bg-lightGreen text-textBlack" : "bg-crimsonRed text-primaryWhite"}`}>
                             {isPaused ? "▶ RETOMAR" : "⏸ PAUSAR"}
                         </button>
@@ -372,7 +331,6 @@ export default function TelaDeJogoCadastro() {
                     {/* área do jogo */}
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
 
-                        {/* Bloco Preparação */}
                         <div className="bg-lightGreen border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]
                             flex flex-col items-center justify-center p-6 gap-4 relative">
                             <p className="absolute top-4 left-4 text-[10px] md:text-xs font-bold text-textBlack bg-white px-2 py-1 border-2 border-black">
@@ -405,7 +363,6 @@ export default function TelaDeJogoCadastro() {
                             </div>
                         </div>
 
-                        {/* Bloco Clientes */}
                         <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]
                             flex flex-col items-center justify-center p-6 gap-4 relative">
                             <p className="absolute top-4 left-4 text-[10px] md:text-xs font-bold text-primaryWhite bg-vibratingBlue px-2 py-1 border-2 border-black">
@@ -422,15 +379,21 @@ export default function TelaDeJogoCadastro() {
                                     {resultadoDia?.clientes_perdidos} DESISTIRAM PELO PREÇO
                                 </p>
                             )}
+                            {/* Mensagem do backend aparece enquanto o dia roda */}
+                            {resultadoDia?.mensagem && (
+                                <div className="mt-2 bg-white border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] p-3 text-[8px] text-center leading-relaxed max-w-xs">
+                                    {resultadoDia.mensagem}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/*popup de setup*/}
+            {/* popup de setup — 3 etapas */}
             {showSetupPopup && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
-                    <div className="bg-primaryWhite w-full max-w-2xl min-h-[520px] shadow-[12px_12px_0px_rgba(0,0,0,1)] 
+                    <div className="bg-primaryWhite w-full max-w-2xl min-h-[520px] shadow-[12px_12px_0px_rgba(0,0,0,1)]
                         p-6 md:p-8 flex flex-col border-4 border-black text-textBlack">
 
                         <div className="flex justify-center gap-3 mb-6">
@@ -441,7 +404,7 @@ export default function TelaDeJogoCadastro() {
                             ))}
                         </div>
 
-                        {/*ETAPA 1 — estoque*/}
+                        {/* ETAPA 1 — estoque */}
                         {popupStep === 1 && (
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-sm md:text-base text-center font-bold mb-2 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
@@ -462,7 +425,7 @@ export default function TelaDeJogoCadastro() {
                                         const podeDevolver = qtd >= item.porcao;
                                         return (
                                             <div key={item.nome}
-                                                className="border-4 border-black bg-lightGreen/20 p-4 flex flex-col gap-3 relative shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                                className="border-4 border-black bg-lightGreen/20 p-4 flex flex-col gap-3 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                                 <div className="flex justify-between items-start">
                                                     <p className="text-[10px] md:text-xs font-bold">{item.nome}</p>
                                                     <p className="text-[8px] text-primaryWhite bg-vibratingBlue px-1 py-0.5 border border-black">
@@ -474,47 +437,34 @@ export default function TelaDeJogoCadastro() {
                                                     <p>Estoque: <strong>{qtd}</strong></p>
                                                 </div>
                                                 <div className="flex gap-2 mt-auto">
-                                                    <button
-                                                        onClick={() => handleDevolver(item.nome)}
-                                                        disabled={!podeDevolver}
-                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
-                                                            ${podeDevolver
-                                                                ? "bg-crimsonRed text-white"
-                                                                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>−</button>
-                                                    <button
-                                                        onClick={() => handleComprar(item.nome)}
-                                                        disabled={sessao.budget < item.preco}
-                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
-                                                            ${sessao.budget >= item.preco
-                                                                ? "bg-lightGreen text-textBlack"
-                                                                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>+</button>
+                                                    <button onClick={() => handleDevolver(item.nome)} disabled={!podeDevolver}
+                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all
+                                                            ${podeDevolver ? "bg-crimsonRed text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>−</button>
+                                                    <button onClick={() => handleComprar(item.nome)} disabled={sessao.budget < item.preco}
+                                                        className={`flex-1 py-2 border-2 border-black font-bold text-lg shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all
+                                                            ${sessao.budget >= item.preco ? "bg-lightGreen text-textBlack" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>+</button>
                                                 </div>
                                             </div>
                                         );
                                     })}
                                 </div>
-                                <button
-                                    onClick={() => {
-                                        if (!sessao.estoque.some(i => i.quantidade > 0)) {
-                                            toast.error("Compre pelo menos um ingrediente!");
-                                            return;
-                                        }
-                                        setPopupStep(2);
-                                    }}
-                                    className="mt-6 w-full py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                <button onClick={() => {
+                                    if (!sessao.estoque.some(i => i.quantidade > 0)) { toast.error("Compre pelo menos um ingrediente!"); return; }
+                                    setPopupStep(2);
+                                }}
+                                    className="mt-6 w-full py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                     DEFINIR RECEITA →
                                 </button>
                             </div>
                         )}
 
-                        {/*ETAPA 2 — receita*/}
+                        {/* ETAPA 2 — receita */}
                         {popupStep === 2 && (
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-sm md:text-base text-center font-bold mb-2 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                     FASE 2 — RECEITA
                                 </h2>
                                 <p className="text-[8px] md:text-[10px] text-center text-textBlack mb-6">Porções por tapioca</p>
-
                                 <div className="flex-1 space-y-4 overflow-y-auto pr-2 mb-6">
                                     {sessao.estoque.filter(i => i.quantidade > 0).map(ing => (
                                         <div key={ing.nome}
@@ -527,70 +477,57 @@ export default function TelaDeJogoCadastro() {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <button onClick={() => handleReceita(ing.nome, -1)}
-                                                    className="w-10 h-10 bg-crimsonRed text-white border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
-                                                    −
-                                                </button>
+                                                    className="w-10 h-10 bg-crimsonRed text-white border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] font-bold active:translate-y-1 active:shadow-none transition-all">−</button>
                                                 <div className="flex flex-col items-center w-10">
-                                                    <span className="font-bold text-lg md:text-xl leading-none">
-                                                        {sessao.receita[ing.nome] ?? 0}
-                                                    </span>
+                                                    <span className="font-bold text-lg md:text-xl leading-none">{sessao.receita[ing.nome] ?? 0}</span>
                                                     <span className="text-[7px] font-bold uppercase text-textBlack">un.</span>
                                                 </div>
                                                 <button onClick={() => handleReceita(ing.nome, 1)}
                                                     disabled={(sessao.receita[ing.nome] ?? 0) >= ing.quantidade}
-                                                    className={`w-10 h-10 border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
+                                                    className={`w-10 h-10 border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all
                                                         ${(sessao.receita[ing.nome] ?? 0) >= ing.quantidade
                                                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                            : "bg-lightGreen text-textBlack"}`}>
-                                                    +
-                                                </button>
+                                                            : "bg-lightGreen text-textBlack"}`}>+</button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-
                                 <div className="bg-lightGreen border-4 border-black py-3 px-4 text-center text-[8px] md:text-[10px] font-bold mb-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                                    Esta receita rende <strong className="text-white drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] bg-vibratingBlue px-2 py-0.5 border-2 border-black ml-1">
+                                    Esta receita rende <strong className="text-white bg-vibratingBlue px-2 py-0.5 border-2 border-black ml-1 drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]">
                                         {sessao.tapiocas_possiveis} TAPIOCAS
                                     </strong>
                                 </div>
-
                                 <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                                     <button onClick={() => setPopupStep(1)}
-                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                         ← VOLTAR
                                     </button>
                                     <button onClick={() => setPopupStep(3)}
-                                        className="flex-1 py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        className="flex-1 py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                         DEFINIR PREÇO →
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/*ETAPA 3 — preço*/}
+                        {/* ETAPA 3 — preço */}
                         {popupStep === 3 && (
                             <div className="flex flex-col items-center justify-center flex-1 gap-6">
                                 <h2 className="text-sm md:text-base text-center font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                     FASE 3 — PRECIFICAÇÃO
                                 </h2>
-
                                 {config.bairro.focoPreco && (
                                     <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-3 text-[8px] md:text-[10px] text-center leading-relaxed max-w-xs">
                                         Foco em <strong>{config.bairro.nome}</strong>:
                                         <br /><span className="text-vibratingBlue font-bold underline mt-1 block">{config.bairro.focoPreco}</span>
                                     </div>
                                 )}
-
                                 <p className="text-[8px] md:text-[10px] text-center text-textBlack max-w-sm border-b-2 border-black border-dashed pb-2">
                                     O preço impacta a satisfação e quantos clientes compram.
                                 </p>
-
                                 <div className="flex items-center gap-6 my-4 bg-gray-100 p-6 border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]">
                                     <button onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
-                                        className="w-14 h-14 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
-                                        −
-                                    </button>
+                                        className="w-14 h-14 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-none transition-all">−</button>
                                     <div className="text-center min-w-[120px]">
                                         <span className="text-3xl md:text-5xl font-bold text-lightGreen drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                             R$ {sessao.preco_tapioca}
@@ -598,11 +535,8 @@ export default function TelaDeJogoCadastro() {
                                         <p className="text-[8px] md:text-[10px] font-bold text-textBlack mt-2 bg-white border-2 border-black py-1">POR UNIDADE</p>
                                     </div>
                                     <button onClick={() => handlePreco(sessao.preco_tapioca + 1)}
-                                        className="w-14 h-14 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
-                                        +
-                                    </button>
+                                        className="w-14 h-14 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-none transition-all">+</button>
                                 </div>
-
                                 <div className="bg-goldenYellow border-4 border-black py-3 px-6 text-[8px] md:text-[10px] text-center font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)] w-full max-w-sm">
                                     RECEITA MÁX. POTENCIAL:
                                     <br />
@@ -610,14 +544,13 @@ export default function TelaDeJogoCadastro() {
                                         R$ {(sessao.tapiocas_possiveis * sessao.preco_tapioca).toFixed(2)}
                                     </strong>
                                 </div>
-
                                 <div className="flex flex-col sm:flex-row gap-4 mt-auto w-full">
                                     <button onClick={() => setPopupStep(2)}
-                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                         ← VOLTAR
                                     </button>
                                     <button onClick={handleStartGame} disabled={isProcessando}
-                                        className={`flex-[2] py-4 text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all
+                                        className={`flex-[2] py-4 text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all
                                             ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen"}`}>
                                         {isProcessando ? "ABRINDO..." : "ABRIR BARRACA! 🚀"}
                                     </button>
@@ -628,7 +561,7 @@ export default function TelaDeJogoCadastro() {
                 </div>
             )}
 
-            {/*popup de estoque esgotado*/}
+            {/* popup de estoque esgotado */}
             {showEstoqueEsgotado && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
                     <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-sm text-textBlack">
@@ -645,14 +578,14 @@ export default function TelaDeJogoCadastro() {
                             </strong>
                         </p>
                         <button onClick={handleFecharEstoqueEsgotado}
-                            className="w-full py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                            className="w-full py-4 bg-goldenYellow text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                             VER BALANÇO DO DIA
                         </button>
                     </div>
                 </div>
             )}
 
-            {/*popup de balanço do dia*/}
+            {/* popup de balanço do dia */}
             {showEndOfDayPopup && resultadoDia && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
                     <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-6 md:p-8 text-center w-full max-w-md text-textBlack">
@@ -660,7 +593,30 @@ export default function TelaDeJogoCadastro() {
                             BALANÇO — DIA {sessao.dia_atual}
                         </h2>
 
-                        <div className="space-y-4 mb-8 text-left bg-gray-100 p-4 md:p-6 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            {[
+                                { label: "PREÇO", delta: resultadoDia.delta_preco },
+                                { label: "RECEITA", delta: resultadoDia.delta_receita },
+                            ].map(({ label, delta }) => {
+                                const { emoji, texto, cor } = labelDelta(delta);
+                                return (
+                                    <div key={label} className={`border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-3 flex flex-col items-center gap-1 ${cor}`}>
+                                        <span className="text-[8px] font-bold uppercase tracking-widest">{label}</span>
+                                        <span className="text-xl">{emoji}</span>
+                                        <span className="text-[8px] md:text-[10px] font-bold">{texto}</span>
+                                        <span className="text-[8px] opacity-70">
+                                            {delta > 0 ? `+${delta}` : delta} pts
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-4 text-[8px] md:text-[10px] text-left leading-relaxed mb-6 font-bold">
+                            💬 {resultadoDia.mensagem}
+                        </div>
+
+                        <div className="space-y-3 mb-6 text-left bg-gray-100 p-4 md:p-5 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
                             {[
                                 { label: "Faturamento", value: `R$ ${resultadoDia.lucro.toFixed(2)}`, color: "text-lightGreen" },
                                 { label: "Gastos estoque", value: `R$ ${gastoHoje.toFixed(2)}`, color: "text-crimsonRed" },
@@ -668,42 +624,43 @@ export default function TelaDeJogoCadastro() {
                                 { label: "Desistiram", value: String(resultadoDia.clientes_perdidos), color: "text-crimsonRed" },
                             ].map(({ label, value, color }) => (
                                 <div key={label} className="flex justify-between items-center border-b-2 border-black border-dashed pb-2">
-                                    <span className="text-[8px] md:text-[10px] font-bold text-textBlack uppercase">{label}</span>
+                                    <span className="text-[8px] md:text-[10px] font-bold uppercase">{label}</span>
                                     <span className={`text-[10px] md:text-xs font-bold bg-white px-2 border-2 border-black ${color}`}>{value}</span>
                                 </div>
                             ))}
-
                             {resultadoDia.estoque_esgotado && (
-                                <div className="bg-crimsonRed border-2 border-black text-white p-2 text-[8px] md:text-[10px] text-center font-bold animate-pulse mt-4 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                <div className="bg-crimsonRed border-2 border-black text-white p-2 text-[8px] md:text-[10px] text-center font-bold animate-pulse mt-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                     ⚠ ESTOQUE ESGOTADO ANTES DA HORA
                                 </div>
                             )}
-
-                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-3 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                 <span className="text-[8px] md:text-[10px] font-bold uppercase">LUCRO LÍQUIDO</span>
                                 <span className={`text-xs md:text-sm font-bold drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]
                                     ${resultadoDia.lucro - gastoHoje >= 0 ? "text-lightGreen" : "text-crimsonRed"}`}>
                                     R$ {(resultadoDia.lucro - gastoHoje).toFixed(2)}
                                 </span>
                             </div>
-
                             <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-2 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                                 <span className="text-[8px] md:text-[10px] font-bold uppercase">SATISFAÇÃO</span>
-                                <span className={`text-[10px] md:text-xs font-bold bg-gray-800 text-white px-2 py-1 border-2 border-black`}>
+                                <span className="text-[10px] md:text-xs font-bold bg-gray-800 text-white px-2 py-1 border-2 border-black">
                                     <span className={satColor}>{sat}</span> / 10
+                                    &nbsp;
+                                    <span className={resultadoDia.satisfacao_delta >= 0 ? "text-lightGreen" : "text-crimsonRed"}>
+                                        ({resultadoDia.satisfacao_delta > 0 ? `+${resultadoDia.satisfacao_delta}` : resultadoDia.satisfacao_delta})
+                                    </span>
                                 </span>
                             </div>
                         </div>
 
                         <button onClick={nextDay}
-                            className="w-full py-4 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                            className="w-full py-4 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                             PRÓXIMO DIA →
                         </button>
                     </div>
                 </div>
             )}
 
-            {/*popup de fim de jogo*/}
+            {/* popup de fim de jogo */}
             {showGameOverPopup && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
                     <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-8 text-center w-full max-w-md text-textBlack">
@@ -711,7 +668,6 @@ export default function TelaDeJogoCadastro() {
                         <h2 className="text-sm md:text-lg font-bold mb-6 text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                             FIM DE EXPEDIENTE!
                         </h2>
-
                         <div className="bg-gray-100 p-6 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)] mb-8 space-y-4">
                             <p className="text-[8px] md:text-[10px] font-bold leading-relaxed border-b-2 border-black border-dashed pb-4">
                                 Você completou {totalDias} dias em<br />
@@ -719,19 +675,18 @@ export default function TelaDeJogoCadastro() {
                             </p>
                             <p className="text-[8px] md:text-[10px] font-bold uppercase flex justify-between items-center pt-2">
                                 Satisfação Final:
-                                <strong className={`bg-gray-800 text-white px-3 py-1 border-2 border-black text-xs`}>
+                                <strong className="bg-gray-800 text-white px-3 py-1 border-2 border-black text-xs">
                                     <span className={satColor}>{sat}</span> / 10
                                 </strong>
                             </p>
                         </div>
-
                         <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
                             <button onClick={() => navigate("/JogoCadastro")}
-                                className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                 MENU
                             </button>
                             <button onClick={() => window.location.reload()}
-                                className="flex-[2] py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                className="flex-[2] py-4 bg-vibratingBlue text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
                                 JOGAR DE NOVO
                             </button>
                         </div>

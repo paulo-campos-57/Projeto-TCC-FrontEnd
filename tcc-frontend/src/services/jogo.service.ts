@@ -31,6 +31,8 @@ export interface ResultadoDia {
     clientes_perdidos: number;
     estoque_esgotado: boolean;
     satisfacao_delta: number;
+    delta_preco: number;
+    delta_receita: number;
     mensagem: string;
     sessao: SessaoSnapshot;
 }
