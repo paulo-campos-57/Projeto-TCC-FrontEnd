@@ -379,12 +379,6 @@ export default function TelaDeJogoCadastro() {
                                     {resultadoDia?.clientes_perdidos} DESISTIRAM PELO PREÇO
                                 </p>
                             )}
-                            {/* Mensagem do backend aparece enquanto o dia roda */}
-                            {resultadoDia?.mensagem && (
-                                <div className="mt-2 bg-white border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] p-3 text-[8px] text-center leading-relaxed max-w-xs">
-                                    {resultadoDia.mensagem}
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -588,72 +582,71 @@ export default function TelaDeJogoCadastro() {
             {/* popup de balanço do dia */}
             {showEndOfDayPopup && resultadoDia && (
                 <div className="absolute inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
-                    <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-6 md:p-8 text-center w-full max-w-md text-textBlack">
-                        <h2 className="text-sm md:text-base font-bold mb-6 uppercase text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-white border-4 border-black py-2 inline-block px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] p-6 md:p-8 text-center w-full max-w-sm md:max-w-3xl max-h-[95vh] flex flex-col text-textBlack">
+
+                        <h2 className="text-xs md:text-lg font-bold mb-6 uppercase text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-white border-4 border-black py-2 inline-block px-6 self-center">
                             BALANÇO — DIA {sessao.dia_atual}
                         </h2>
 
-                        <div className="grid grid-cols-2 gap-3 mb-6">
-                            {[
-                                { label: "PREÇO", delta: resultadoDia.delta_preco },
-                                { label: "RECEITA", delta: resultadoDia.delta_receita },
-                            ].map(({ label, delta }) => {
-                                const { emoji, texto, cor } = labelDelta(delta);
-                                return (
-                                    <div key={label} className={`border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-3 flex flex-col items-center gap-1 ${cor}`}>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest">{label}</span>
-                                        <span className="text-xl">{emoji}</span>
-                                        <span className="text-[8px] md:text-[10px] font-bold">{texto}</span>
-                                        <span className="text-[8px] opacity-70">
-                                            {delta > 0 ? `+${delta}` : delta} pts
-                                        </span>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                        <div className="flex flex-col md:flex-row gap-4 md:gap-8 mb-6">
 
-                        <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-4 text-[8px] md:text-[10px] text-left leading-relaxed mb-6 font-bold">
-                            💬 {resultadoDia.mensagem}
-                        </div>
-
-                        <div className="space-y-3 mb-6 text-left bg-gray-100 p-4 md:p-5 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
-                            {[
-                                { label: "Faturamento", value: `R$ ${resultadoDia.lucro.toFixed(2)}`, color: "text-lightGreen" },
-                                { label: "Gastos estoque", value: `R$ ${gastoHoje.toFixed(2)}`, color: "text-crimsonRed" },
-                                { label: "Clientes", value: `${resultadoDia.clientes_atendidos} / ${resultadoDia.clientes_totais}`, color: "text-vibratingBlue" },
-                                { label: "Desistiram", value: String(resultadoDia.clientes_perdidos), color: "text-crimsonRed" },
-                            ].map(({ label, value, color }) => (
-                                <div key={label} className="flex justify-between items-center border-b-2 border-black border-dashed pb-2">
-                                    <span className="text-[8px] md:text-[10px] font-bold uppercase">{label}</span>
-                                    <span className={`text-[10px] md:text-xs font-bold bg-white px-2 border-2 border-black ${color}`}>{value}</span>
+                            <div className="flex-[1.2] flex flex-col gap-4">
+                                <div className="flex gap-4">
+                                    {[
+                                        { label: "PREÇO", delta: resultadoDia.delta_preco },
+                                        { label: "RECEITA", delta: resultadoDia.delta_receita },
+                                    ].map(({ label, delta }) => {
+                                        const { emoji, texto, cor } = labelDelta(delta);
+                                        return (
+                                            <div key={label} className={`flex-1 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-3 md:p-4 flex flex-col items-center gap-1 ${cor}`}>
+                                                <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-wider">{label}</span>
+                                                <span className="text-xl md:text-3xl leading-none my-1">{emoji}</span>
+                                                <span className="text-[9px] md:text-xs font-bold uppercase">{texto}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            ))}
-                            {resultadoDia.estoque_esgotado && (
-                                <div className="bg-crimsonRed border-2 border-black text-white p-2 text-[8px] md:text-[10px] text-center font-bold animate-pulse mt-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                                    ⚠ ESTOQUE ESGOTADO ANTES DA HORA
+                                <div className="flex-1 bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-4 md:p-5 text-[10px] md:text-sm text-left leading-relaxed font-bold">
+                                    <span className="text-lg">💬</span> {resultadoDia.mensagem}
                                 </div>
-                            )}
-                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-3 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                                <span className="text-[8px] md:text-[10px] font-bold uppercase">LUCRO LÍQUIDO</span>
-                                <span className={`text-xs md:text-sm font-bold drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]
-                                    ${resultadoDia.lucro - gastoHoje >= 0 ? "text-lightGreen" : "text-crimsonRed"}`}>
-                                    R$ {(resultadoDia.lucro - gastoHoje).toFixed(2)}
-                                </span>
                             </div>
-                            <div className="flex justify-between items-center bg-white border-4 border-black p-3 mt-2 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                                <span className="text-[8px] md:text-[10px] font-bold uppercase">SATISFAÇÃO</span>
-                                <span className="text-[10px] md:text-xs font-bold bg-gray-800 text-white px-2 py-1 border-2 border-black">
-                                    <span className={satColor}>{sat}</span> / 10
-                                    &nbsp;
-                                    <span className={resultadoDia.satisfacao_delta >= 0 ? "text-lightGreen" : "text-crimsonRed"}>
-                                        ({resultadoDia.satisfacao_delta > 0 ? `+${resultadoDia.satisfacao_delta}` : resultadoDia.satisfacao_delta})
+
+                            <div className="flex-1 space-y-3 md:space-y-4 text-left bg-gray-100 p-4 md:p-6 border-4 border-black shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
+                                {[
+                                    { label: "Faturamento", value: `R$ ${resultadoDia.lucro.toFixed(2)}`, color: "text-lightGreen" },
+                                    { label: "Gastos estoque", value: `R$ ${gastoHoje.toFixed(2)}`, color: "text-crimsonRed" },
+                                    { label: "Clientes atendidos", value: `${resultadoDia.clientes_atendidos}/${resultadoDia.clientes_totais}`, color: "text-vibratingBlue" },
+                                ].map(({ label, value, color }) => (
+                                    <div key={label} className="flex justify-between items-center border-b-2 border-black border-dashed pb-2">
+                                        <span className="text-[8px] md:text-[11px] font-bold uppercase">{label}</span>
+                                        <span className={`text-[10px] md:text-sm font-bold bg-white px-2 border-2 border-black ${color}`}>{value}</span>
+                                    </div>
+                                ))}
+
+                                {resultadoDia.estoque_esgotado && (
+                                    <div className="bg-crimsonRed border-2 border-black text-white p-2 text-[9px] md:text-xs text-center font-bold animate-pulse shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                        ⚠ ESTOQUE ESGOTADO
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center bg-white border-4 border-black p-2 md:p-3 mt-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                    <span className="text-[9px] md:text-xs font-bold uppercase tracking-tighter">LUCRO LÍQUIDO</span>
+                                    <span className={`text-sm md:text-lg font-bold drop-shadow-[1px_1px_0px_rgba(0,0,0,1)] ${resultadoDia.lucro - gastoHoje >= 0 ? "text-lightGreen" : "text-crimsonRed"}`}>
+                                        R$ {(resultadoDia.lucro - gastoHoje).toFixed(2)}
                                     </span>
-                                </span>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-white border-4 border-black p-2 md:p-3 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                    <span className="text-[9px] md:text-xs font-bold uppercase">SATISFAÇÃO</span>
+                                    <span className="text-[10px] md:text-sm font-bold bg-gray-800 text-white px-2 py-1 border-2 border-black">
+                                        {sat}/10 <span className={resultadoDia.satisfacao_delta >= 0 ? "text-lightGreen" : "text-crimsonRed"}>({resultadoDia.satisfacao_delta > 0 ? `+${resultadoDia.satisfacao_delta}` : resultadoDia.satisfacao_delta})</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         <button onClick={nextDay}
-                            className="w-full py-4 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
+                            className="w-full py-4 md:py-5 bg-lightGreen text-textBlack border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] font-bold text-xs md:text-base active:translate-y-1 active:shadow-none transition-all uppercase mt-auto">
                             PRÓXIMO DIA →
                         </button>
                     </div>
