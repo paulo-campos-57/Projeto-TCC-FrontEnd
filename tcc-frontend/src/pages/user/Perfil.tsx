@@ -74,6 +74,11 @@ export default function Perfil() {
     };
 
     const handleDelete = async () => {
+        if (!user?.id) {
+            toast.error("ID do usuário não carregado.");
+            return;
+        }
+
         const confirmDelete = window.confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
 
         if (!confirmDelete) return;
