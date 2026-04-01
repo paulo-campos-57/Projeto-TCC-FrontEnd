@@ -87,7 +87,7 @@ export default function Perfil() {
         const loadingToast = toast.loading("Excluindo conta...");
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/user/delete/${user?.id}`, {
+            const response = await fetch(`http://127.0.0.1:5000/user/delete`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,
