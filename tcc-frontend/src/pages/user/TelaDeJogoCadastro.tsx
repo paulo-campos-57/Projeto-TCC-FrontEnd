@@ -506,46 +506,71 @@ export default function TelaDeJogoCadastro() {
 
                         {/* ETAPA 3 — preço */}
                         {popupStep === 3 && (
-                            <div className="flex flex-col items-center justify-center flex-1 gap-6">
-                                <h2 className="text-sm md:text-base text-center font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                                    FASE 3 — PRECIFICAÇÃO
+                            <div className="flex flex-col items-center justify-between flex-1 gap-3 h-full max-h-full overflow-hidden">
+                                <h2 className="text-sm md:text-base text-center font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase">
+                                    Fase 3 — Precificação
                                 </h2>
+
                                 {config.bairro.focoPreco && (
-                                    <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-4 py-3 text-[8px] md:text-[10px] text-center leading-relaxed max-w-xs">
+                                    <div className="bg-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] px-3 py-1.5 text-[8px] md:text-[10px] text-center leading-tight max-w-xs">
                                         Foco em <strong>{config.bairro.nome}</strong>:
-                                        <br /><span className="text-vibratingBlue font-bold underline mt-1 block">{config.bairro.focoPreco}</span>
+                                        <span className="text-vibratingBlue font-bold underline ml-1">{config.bairro.focoPreco}</span>
                                     </div>
                                 )}
-                                <p className="text-[8px] md:text-[10px] text-center text-textBlack max-w-sm border-b-2 border-black border-dashed pb-2">
-                                    O preço impacta a satisfação e quantos clientes compram.
+
+                                {sessao.preco_dia_anterior !== null && sessao.preco_dia_anterior !== undefined && (
+                                    <div className="flex items-center gap-2 bg-goldenYellow border-4 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] px-3 py-1.5 text-[8px] md:text-[9px] font-bold max-w-xs w-full justify-center">
+                                        <span>📌 PREÇO DE ONTEM:</span>
+                                        <span className="bg-white border-2 border-black px-2 py-0.5 text-textBlack shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                                            R$ {sessao.preco_dia_anterior}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <p className="text-[8px] md:text-[9px] text-center text-textBlack max-w-xs border-b-2 border-black border-dashed pb-1 italic">
+                                    O preço impacta a satisfação e as vendas.
                                 </p>
-                                <div className="flex items-center gap-6 my-4 bg-gray-100 p-6 border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)]">
-                                    <button onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
-                                        className="w-14 h-14 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-none transition-all">−</button>
-                                    <div className="text-center min-w-[120px]">
-                                        <span className="text-3xl md:text-5xl font-bold text-lightGreen drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+
+                                {/* Seletor de Preço - Reduzido padding e gap */}
+                                <div className="flex items-center gap-4 my-1 bg-gray-100 p-3 md:p-4 border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]">
+                                    <button
+                                        onClick={() => handlePreco(Math.max(1, sessao.preco_tapioca - 1))}
+                                        className="w-10 h-10 md:w-12 md:h-12 bg-crimsonRed text-white border-4 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] text-xl font-bold active:translate-y-0.5 active:shadow-none transition-all">
+                                        −
+                                    </button>
+
+                                    <div className="text-center min-w-[100px]">
+                                        <span className="text-2xl md:text-4xl font-bold text-lightGreen drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
                                             R$ {sessao.preco_tapioca}
                                         </span>
-                                        <p className="text-[8px] md:text-[10px] font-bold text-textBlack mt-2 bg-white border-2 border-black py-1">POR UNIDADE</p>
+                                        <p className="text-[7px] md:text-[9px] font-bold text-textBlack mt-1 bg-white border-2 border-black py-0.5 uppercase">por unidade</p>
                                     </div>
-                                    <button onClick={() => handlePreco(sessao.preco_tapioca + 1)}
-                                        className="w-14 h-14 bg-lightGreen text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-2xl font-bold active:translate-y-1 active:shadow-none transition-all">+</button>
+
+                                    <button
+                                        onClick={() => handlePreco(sessao.preco_tapioca + 1)}
+                                        className="w-10 h-10 md:w-12 md:h-12 bg-lightGreen text-textBlack border-4 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] text-xl font-bold active:translate-y-0.5 active:shadow-none transition-all">
+                                        +
+                                    </button>
                                 </div>
-                                <div className="bg-goldenYellow border-4 border-black py-3 px-6 text-[8px] md:text-[10px] text-center font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)] w-full max-w-sm">
+
+                                <div className="bg-goldenYellow border-4 border-black py-2 px-4 text-[8px] md:text-[10px] text-center font-bold shadow-[3px_3px_0px_rgba(0,0,0,1)] w-full max-w-xs">
                                     RECEITA MÁX. POTENCIAL:
-                                    <br />
-                                    <strong className="text-textBlack bg-white px-2 py-0.5 border-2 border-black mt-2 inline-block">
+                                    <strong className="text-textBlack bg-white px-2 ml-2 border-2 border-black inline-block">
                                         R$ {(sessao.tapiocas_possiveis * sessao.preco_tapioca).toFixed(2)}
                                     </strong>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-4 mt-auto w-full">
-                                    <button onClick={() => setPopupStep(2)}
-                                        className="flex-1 py-4 bg-crimsonRed text-white border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all">
+
+                                <div className="flex flex-row gap-3 mt-2 w-full">
+                                    <button
+                                        onClick={() => setPopupStep(2)}
+                                        className="flex-1 py-3 bg-crimsonRed text-white border-4 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] font-bold text-[9px] md:text-xs active:translate-y-0.5 active:shadow-none transition-all">
                                         ← VOLTAR
                                     </button>
-                                    <button onClick={handleStartGame} disabled={isProcessando}
-                                        className={`flex-[2] py-4 text-textBlack border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold text-[10px] md:text-xs active:translate-y-1 active:shadow-none transition-all
-                                            ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen"}`}>
+                                    <button
+                                        onClick={handleStartGame}
+                                        disabled={isProcessando}
+                                        className={`flex-[2] py-3 text-textBlack border-4 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] font-bold text-[9px] md:text-xs active:translate-y-0.5 active:shadow-none transition-all
+                    ${isProcessando ? "bg-gray-400 cursor-not-allowed" : "bg-lightGreen"}`}>
                                         {isProcessando ? "ABRINDO..." : "ABRIR BARRACA! 🚀"}
                                     </button>
                                 </div>

@@ -17,6 +17,7 @@ export interface SessaoSnapshot {
     budget: number;
     satisfacao: number;
     preco_tapioca: number;
+    preco_dia_anterior: number | null;
     gasto_hoje: number;
     tapiocas_possiveis: number;
     estoque: ItemEstoque[];

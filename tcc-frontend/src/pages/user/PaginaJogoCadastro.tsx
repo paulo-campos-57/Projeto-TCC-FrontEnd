@@ -179,28 +179,50 @@ export default function PaginaJogoCadastro() {
             </div>
 
             {showPopup && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-[1000] px-4">
-                    <div className="bg-primaryWhite p-8 md:p-10 w-full max-w-lg text-center border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)]">
-                        <h2 className="text-sm md:text-xl font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] mb-8">
-                            MODO SELECIONADO
+                <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-[1000] px-4">
+                    <div className="bg-primaryWhite border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] p-8 w-full max-w-2xl text-center flex flex-col gap-6">
+                        <h2 className="text-sm md:text-xl font-bold text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase">
+                            Modo Selecionado
                         </h2>
 
-                        <p className="text-[10px] md:text-xs leading-8 text-textBlack mb-8">
-                            Tempo: <span className="text-vibratingBlue font-bold border-b-2 border-black border-dashed pb-1">{tempoDeJogo}</span>
-                        </p>
+                        <div className="text-[10px] md:text-xs text-textBlack leading-relaxed uppercase">
+                            {tempoDeJogo ? (
+                                tempoDeJogo.toLowerCase() === "livre" ? (
+                                    <>
+                                        Você escolheu o modo <strong className="text-vibratingBlue underline">livre</strong>!
+                                        <hr className="my-6 border-2 border-black border-dashed" />
+                                        Nesse modo, você pode jogar sem limites de tempo —
+                                        apenas divirta-se, explore suas estratégias e veja
+                                        até onde consegue chegar como mestre das tapiocas!
+                                    </>
+                                ) : (
+                                    <>
+                                        Você escolheu <strong className="text-vibratingBlue underline">{tempoDeJogo}</strong> como tempo de jogo.
+                                        <hr className="my-6 border-2 border-black border-dashed" />
+                                        Durante esse período, seu objetivo é vender o maior número
+                                        possível de tapiocas e acumular a maior quantia de dinheiro
+                                        antes que o tempo acabe.
+                                        <br /><br />
+                                        Boa sorte, vendedor(a)!
+                                    </>
+                                )
+                            ) : (
+                                "Nenhum modo de tempo foi detectado."
+                            )}
+                        </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
                             <button
                                 onClick={handleGoBack}
-                                className="flex-1 bg-crimsonRed text-primaryWhite py-4 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                                className="w-full sm:w-1/2 bg-crimsonRed text-primaryWhite font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all duration-200 uppercase"
                             >
-                                VOLTAR
+                                Voltar
                             </button>
                             <button
                                 onClick={handleContinue}
-                                className="flex-1 bg-lightGreen text-textBlack py-4 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                                className="w-full sm:w-1/2 bg-lightGreen text-textBlack font-bold py-4 px-6 text-[10px] md:text-xs border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all duration-200 uppercase"
                             >
-                                CONTINUAR
+                                Continuar
                             </button>
                         </div>
                     </div>
