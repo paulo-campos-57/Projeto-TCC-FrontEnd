@@ -1,13 +1,13 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = () => {
-    const isAuthenticaded = !!localStorage.getItem("token");
+  const isAuthenticaded = !!localStorage.getItem('token');
 
-    if (!isAuthenticaded) {
-        return <Navigate to="/" replace />;
-    }
+  if (!isAuthenticaded) {
+    return <Navigate to="/" replace />;
+  }
 
-    return <Outlet />;
-}
+  return <Outlet />;
+};
 
 export default ProtectedRoute;
