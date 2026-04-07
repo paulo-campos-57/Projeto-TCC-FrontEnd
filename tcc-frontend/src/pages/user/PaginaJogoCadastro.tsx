@@ -7,6 +7,15 @@ import L from 'leaflet';
 
 import Header from '../../components/Header';
 
+interface Bairro {
+  id: number;
+  nome: string;
+  pos: [number, number];
+  descricao: string;
+  focoPreco: string;
+  expectativa: string;
+}
+
 const defaultIcon = L.icon({
   iconUrl:
     'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -41,12 +50,11 @@ export default function PaginaJogoCadastro() {
   const navigate = useNavigate();
   const { tempoDeJogo } = (location.state as { tempoDeJogo?: string }) || {};
 
-  const [bairros, setBairros] = useState<any[]>([]);
+  const [bairros, setBairros] = useState<Bairro[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(true);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState<any | null>(
-    null,
-  );
+  const [selectedNeighborhood, setSelectedNeighborhood] =
+    useState<Bairro | null>(null);
 
   useEffect(() => {
     const fetchBairros = async () => {
@@ -60,7 +68,7 @@ export default function PaginaJogoCadastro() {
           toast.error('Erro ao carregar dados dos bairros');
         }
       } catch (error) {
-        console.error('Erro de rede:', error);
+        console.error('Erro ao buscar bairros:', error);
         toast.error('Servidor offline');
       } finally {
         setLoading(false);
@@ -95,7 +103,6 @@ export default function PaginaJogoCadastro() {
 
       if (response.ok) {
         toast.success('Tudo pronto! Boa sorte!', { id: loadingToast });
-
         navigate(data.redirect_url, {
           state: { config: data.game_config },
         });
@@ -103,6 +110,7 @@ export default function PaginaJogoCadastro() {
         toast.error(data.error || 'Erro ao iniciar jogo', { id: loadingToast });
       }
     } catch (error) {
+      console.error('Erro ao iniciar jogo:', error);
       toast.error('Erro de conexão com o servidor', { id: loadingToast });
     }
   };

@@ -27,6 +27,7 @@ export default function JogoCadastro() {
         toast.error(data.error);
       }
     } catch (err) {
+      console.error('Erro ao iniciar sessão de jogo:', err);
       toast.error('Erro ao falar com o servidor');
     }
   };

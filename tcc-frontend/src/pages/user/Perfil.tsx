@@ -22,34 +22,35 @@ export default function Perfil() {
 
   const navigate = useNavigate();
 
-  const fetchUserData = async () => {
-    const token = localStorage.getItem('token')?.replace(/"/g, '');
-    if (!token) {
-      navigate('/');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://127.0.0.1:5000/user/me', {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setUser(data.User);
-        setEditNome(data.User.nome);
-        setEditEmail(data.User.email);
-      }
-    } catch (err) {
-      toast.error('Erro ao conectar com o servidor');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token')?.replace(/"/g, '');
+      if (!token) {
+        navigate('/');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/user/me', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setUser(data.User);
+          setEditNome(data.User.nome);
+          setEditEmail(data.User.email);
+        }
+      } catch (err) {
+        toast.error('Erro ao conectar com o servidor');
+        console.error('Erro ao buscar dados do usuário:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUserData();
-  }, []);
+  }, [navigate]);
 
   const handleSave = async () => {
     const token = localStorage.getItem('token')?.replace(/"/g, '');
@@ -77,6 +78,7 @@ export default function Perfil() {
       }
     } catch (err) {
       toast.error('Erro de rede', { id: loadingToast });
+      console.error('Erro ao atualizar perfil:', err);
     }
   };
 
@@ -106,9 +108,7 @@ export default function Perfil() {
 
       if (response.ok) {
         toast.success('Conta excluída com sucesso.', { id: loadingToast });
-
         localStorage.clear();
-
         setTimeout(() => navigate('/'), 2000);
       } else {
         const data = await response.json();
@@ -117,7 +117,7 @@ export default function Perfil() {
         });
       }
     } catch (err) {
-      console.error(err);
+      console.error('Erro ao excluir:', err);
       toast.error('Erro de rede ao tentar excluir', { id: loadingToast });
     }
   };
@@ -128,7 +128,7 @@ export default function Perfil() {
       <div className="flex h-screen w-screen flex-col overflow-hidden bg-primaryWhite font-pressStart">
         <Header />
         <div className="flex flex-1 pt-16">
-          <div className="flex h-full w-1/2 flex-col items-center justify-center bg-lightGreen p-8 text-textBlack">
+          <div className="flex h-full w-full flex-col items-center justify-center bg-lightGreen p-8 text-textBlack md:w-1/2">
             <div className="relative w-full max-w-md border-4 border-black bg-primaryWhite p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all">
               <button
                 onClick={() => setIsEditing(!isEditing)}
@@ -212,7 +212,7 @@ export default function Perfil() {
             </div>
           </div>
 
-          <div className="flex h-full w-1/2 flex-col items-center justify-center border-l-4 border-black bg-primaryWhite p-8 text-textBlack">
+          <div className="hidden h-full w-1/2 flex-col items-center justify-center border-l-4 border-black bg-primaryWhite p-8 text-textBlack md:flex">
             <h1 className="mb-8 text-center text-xl text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-3xl">
               Estatísticas
             </h1>
