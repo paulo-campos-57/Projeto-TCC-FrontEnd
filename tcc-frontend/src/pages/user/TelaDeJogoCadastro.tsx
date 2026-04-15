@@ -179,7 +179,7 @@ export default function TelaDeJogoCadastro() {
         }
         return prev - 1;
       });
-    }, 100);
+    }, 1000);
     setIsRunning(true);
   };
 
