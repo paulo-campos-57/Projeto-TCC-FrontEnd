@@ -10,6 +10,7 @@ import {
   criarSessao,
   definirPreco,
   devolverIngrediente,
+  encerrarSessao,
   processarDia,
 } from '../../services/jogo.service';
 import type {
@@ -178,7 +179,7 @@ export default function TelaDeJogoCadastro() {
         }
         return prev - 1;
       });
-    }, 1000);
+    }, 100);
     setIsRunning(true);
   };
 
@@ -816,16 +817,12 @@ export default function TelaDeJogoCadastro() {
       {/*popup de fim de dia*/}
       {showEndOfDayPopup && resultadoDia && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/85 p-4">
-          {/* Aumentei max-w para 5xl e adicionei py-8 para mais respiro vertical */}
           <div className="flex h-fit w-full max-w-5xl flex-col overflow-hidden border-4 border-black bg-primaryWhite p-6 text-center text-textBlack shadow-[12px_12px_0px_rgba(0,0,0,1)] md:p-10">
-            {/* Título com mais margem inferior */}
             <h2 className="mb-8 inline-block self-center border-4 border-black bg-white px-6 py-2 text-sm font-bold uppercase text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-base">
               BALANÇO — DIA {sessao.dia_atual}
             </h2>
 
-            {/* Grid com Gap maior (gap-8) para separar melhor as áreas */}
             <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-              {/* Coluna Esquerda: Feedback */}
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
                   {[
@@ -851,14 +848,12 @@ export default function TelaDeJogoCadastro() {
                   })}
                 </div>
 
-                {/* Caixa de Mensagem com padding maior e min-height */}
                 <div className="min-h-[120px] flex-1 overflow-y-auto border-4 border-black bg-white p-5 text-left text-[10px] font-bold italic leading-relaxed shadow-[4px_4px_0px_rgba(0,0,0,1)] md:text-xs">
                   <span className="mr-2 text-base">💬</span>{' '}
                   {resultadoDia.mensagem}
                 </div>
               </div>
 
-              {/* Coluna Direita: Financeiro */}
               <div className="flex flex-col justify-between space-y-4 border-4 border-black bg-gray-100 p-5 shadow-[inset_4px_4px_0px_rgba(0,0,0,0.1)]">
                 <div className="space-y-3">
                   {[
@@ -936,7 +931,6 @@ export default function TelaDeJogoCadastro() {
               </div>
             </div>
 
-            {/* Botão de ação com mais altura */}
             <button
               onClick={nextDay}
               className="w-full border-4 border-black bg-lightGreen py-5 text-xs font-bold uppercase text-textBlack shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 active:translate-y-1 active:shadow-none md:text-sm"
@@ -974,13 +968,27 @@ export default function TelaDeJogoCadastro() {
             </div>
             <div className="flex w-full flex-col justify-center gap-4 sm:flex-row">
               <button
-                onClick={() => navigate('/JogoCadastro')}
+                onClick={async () => {
+                  try {
+                    if (sessaoId) await encerrarSessao(sessaoId);
+                  } catch (e) {
+                    console.error(e);
+                  }
+                  navigate('/JogoCadastro');
+                }}
                 className="flex-1 border-4 border-black bg-crimsonRed py-4 text-[10px] font-bold text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none md:text-xs"
               >
                 MENU
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={async () => {
+                  try {
+                    if (sessaoId) await encerrarSessao(sessaoId);
+                  } catch (e) {
+                    console.error(e);
+                  }
+                  window.location.reload();
+                }}
                 className="flex-[2] border-4 border-black bg-vibratingBlue py-4 text-[10px] font-bold text-white shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none md:text-xs"
               >
                 JOGAR DE NOVO

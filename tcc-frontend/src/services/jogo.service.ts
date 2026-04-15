@@ -41,10 +41,26 @@ export interface ResultadoDia {
   sessao: SessaoSnapshot;
 }
 
+function getToken(): string | null {
+  const raw = localStorage.getItem('token');
+  if (!raw) return null;
+  return raw.replace(/"/g, '').trim();
+}
+
+function buildHeaders(extra?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
 async function post<T>(url: string, body?: unknown): Promise<T> {
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(),
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   const json = await res.json();
@@ -55,7 +71,7 @@ async function post<T>(url: string, body?: unknown): Promise<T> {
 async function put<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(),
     body: JSON.stringify(body),
   });
   const json = await res.json();
@@ -122,4 +138,13 @@ export async function avancarDia(
   sessao_id: string,
 ): Promise<{ sessao: SessaoSnapshot; catalogo: ItemCatalogo[] }> {
   return post(`${BASE}/sessao/${sessao_id}/avancar-dia`);
+}
+
+export async function encerrarSessao(sessao_id: string): Promise<unknown> {
+  const res = await fetch(`${BASE}/sessao/${sessao_id}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+  });
+  if (!res.ok) throw new Error('Erro ao encerrar sessão');
+  return res.json();
 }
