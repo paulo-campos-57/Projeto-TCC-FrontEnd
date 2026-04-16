@@ -112,23 +112,8 @@ export default function TelaDeJogoCadastro() {
   );
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  if (!config) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 font-pressStart">
-        <p className="text-sm">Erro: sessão não encontrada.</p>
-        <button
-          onClick={() => navigate('/JogoCadastro')}
-          className="border-4 border-black bg-vibratingBlue px-6 py-2 text-xs text-white"
-        >
-          Voltar
-        </button>
-      </div>
-    );
-  }
-
-  const totalDias = limiteDias(config.tempoDeJogo);
-
   useEffect(() => {
+    if (!config) return;
     (async () => {
       const t = toast.loading('Criando sessão...');
       try {
@@ -145,7 +130,25 @@ export default function TelaDeJogoCadastro() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [config]);
+
+  let totalDias = 3;
+
+  if (!config) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4 font-pressStart">
+        <p className="text-sm">Erro: sessão não encontrada.</p>
+        <button
+          onClick={() => navigate('/JogoCadastro')}
+          className="border-4 border-black bg-vibratingBlue px-6 py-2 text-xs text-white"
+        >
+          Voltar
+        </button>
+      </div>
+    );
+  }
+
+  totalDias = limiteDias(config.tempoDeJogo);
 
   const pararTudo = () => {
     if (timerIntervalRef.current) {
@@ -188,7 +191,6 @@ export default function TelaDeJogoCadastro() {
     _estoqueInicial: Record<string, number>,
     receita: Record<string, number>,
     esgotado: boolean,
-    _snapshot: SessaoSnapshot,
   ) => {
     if (clienteIntervalRef.current) clearInterval(clienteIntervalRef.current);
     clienteIntervalRef.current = setInterval(() => {
@@ -252,7 +254,6 @@ export default function TelaDeJogoCadastro() {
         estoqueInicial,
         sessao.receita,
         resultado.estoque_esgotado,
-        resultado.sessao,
       );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao iniciar.', {
