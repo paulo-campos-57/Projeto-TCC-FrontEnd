@@ -46,6 +46,13 @@ export default function UsuarioHome() {
 
             <button
               className="w-full border-4 border-black bg-goldenYellow py-4 text-xs text-textBlack shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-y-2 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-sm"
+              onClick={() => navigate('/Ranking')}
+            >
+              RANKING
+            </button>
+
+            <button
+              className="w-full border-4 border-black bg-goldenYellow py-4 text-xs text-textBlack shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-y-2 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-sm"
               onClick={() => navigate('/Perfil')}
             >
               PERFIL

@@ -12,6 +12,7 @@ import PaginaJogoCadastro from './pages/user/PaginaJogoCadastro';
 import Perfil from './pages/user/Perfil';
 import TelaDeJogoCadastro from './pages/user/TelaDeJogoCadastro';
 import UsuarioHome from './pages/user/UsuarioHome';
+import Ranking from './pages/user/Ranking';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/PaginaJogoCadastro" element={<PaginaJogoCadastro />} />
           <Route path="/TelaDeJogoCadastro" element={<TelaDeJogoCadastro />} />
           <Route path="/Perfil" element={<Perfil />} />
+          <Route path="/Ranking" element={<Ranking />} />
         </Route>
       </Routes>
     </>
