@@ -47,7 +47,10 @@ export default function Header() {
         >
           <NavItem>Tutorial</NavItem>
         </span>
-        <span className="cursor-pointer drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:text-yellow-300 active:translate-y-0">
+        <span
+          onClick={() => navigate('/Sobre')}
+          className="cursor-pointer drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:text-yellow-300 active:translate-y-0"
+        >
           <NavItem>Sobre</NavItem>
         </span>
       </div>

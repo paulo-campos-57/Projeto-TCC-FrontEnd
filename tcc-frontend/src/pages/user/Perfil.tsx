@@ -1,11 +1,23 @@
 import { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Save, X } from 'lucide-react';
-import Header from '../../components/Header';
 
 import {
+  CategoryScale,
   Chart as ChartJS,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js';
+import { Pencil, Save, X } from 'lucide-react';
+
+import Header from '../../components/Header';
+
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
@@ -13,10 +25,7 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+);
 
 interface UserData {
   nome: string;
@@ -64,15 +73,18 @@ export default function Perfil() {
         const userData = await userRes.json();
 
         if (userRes.ok) {
-          console.log("Chamando estatísticas para o ID:", userData.User.id);
+          console.log('Chamando estatísticas para o ID:', userData.User.id);
           setUser(userData.User);
           setEditNome(userData.User.nome);
           setEditEmail(userData.User.email);
 
-          const statsRes = await fetch(`http://127.0.0.1:5000/resultados/${userData.User.id}/estatisticas`, {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const statsRes = await fetch(
+            `http://127.0.0.1:5000/resultados/${userData.User.id}/estatisticas`,
+            {
+              method: 'GET',
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
           const statsData = await statsRes.json();
           if (statsRes.ok) setStats(statsData);
         }
@@ -134,7 +146,9 @@ export default function Perfil() {
       return;
     }
 
-    const confirmDelete = window.confirm('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.');
+    const confirmDelete = window.confirm(
+      'Tem certeza que deseja excluir sua conta? Esta ação é irreversível.',
+    );
     if (!confirmDelete) return;
 
     const token = localStorage.getItem('token')?.replace(/"/g, '');
@@ -155,7 +169,9 @@ export default function Perfil() {
         setTimeout(() => navigate('/'), 2000);
       } else {
         const data = await response.json();
-        toast.error(data.error || 'Erro ao excluir conta', { id: loadingToast });
+        toast.error(data.error || 'Erro ao excluir conta', {
+          id: loadingToast,
+        });
       }
     } catch (err) {
       toast.error('Erro de rede ao tentar excluir', { id: loadingToast });
@@ -174,7 +190,11 @@ export default function Perfil() {
                 onClick={() => setIsEditing(!isEditing)}
                 className="absolute right-4 top-4 text-black transition-all hover:-translate-y-1 hover:text-vibratingBlue active:translate-y-0"
               >
-                {isEditing ? <X size={24} className="text-crimsonRed" /> : <Pencil size={24} />}
+                {isEditing ? (
+                  <X size={24} className="text-crimsonRed" />
+                ) : (
+                  <Pencil size={24} />
+                )}
               </button>
 
               <h1 className="mb-8 text-center text-xl text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-2xl">
@@ -183,11 +203,15 @@ export default function Perfil() {
 
               <div className="space-y-6">
                 {loading ? (
-                  <p className="animate-pulse text-center text-[10px] md:text-xs">Buscando...</p>
+                  <p className="animate-pulse text-center text-[10px] md:text-xs">
+                    Buscando...
+                  </p>
                 ) : (
                   <>
                     <div>
-                      <p className="mb-2 text-[10px] text-gray-700 md:text-xs">NOME:</p>
+                      <p className="mb-2 text-[10px] text-gray-700 md:text-xs">
+                        NOME:
+                      </p>
                       {isEditing ? (
                         <input
                           className="w-full border-4 border-black bg-white p-3 text-[10px] transition-colors focus:bg-gray-100 focus:outline-none md:text-xs"
@@ -195,12 +219,16 @@ export default function Perfil() {
                           onChange={(e) => setEditNome(e.target.value)}
                         />
                       ) : (
-                        <p className="break-words border-b-2 border-dashed border-black pb-1 text-xs md:text-sm">{user?.nome}</p>
+                        <p className="break-words border-b-2 border-dashed border-black pb-1 text-xs md:text-sm">
+                          {user?.nome}
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <p className="mb-2 text-[10px] text-gray-700 md:text-xs">E-MAIL:</p>
+                      <p className="mb-2 text-[10px] text-gray-700 md:text-xs">
+                        E-MAIL:
+                      </p>
                       {isEditing ? (
                         <input
                           className="w-full border-4 border-black bg-white p-3 text-[10px] transition-colors focus:bg-gray-100 focus:outline-none md:text-xs"
@@ -208,7 +236,9 @@ export default function Perfil() {
                           onChange={(e) => setEditEmail(e.target.value)}
                         />
                       ) : (
-                        <p className="break-words border-b-2 border-dashed border-black pb-1 text-xs md:text-sm">{user?.email}</p>
+                        <p className="break-words border-b-2 border-dashed border-black pb-1 text-xs md:text-sm">
+                          {user?.email}
+                        </p>
                       )}
                     </div>
 
@@ -250,7 +280,9 @@ export default function Perfil() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                     <p className="text-[8px] text-gray-500">LUCRO TOTAL</p>
-                    <p className="text-xs text-green-600">R$ {stats.geral.lucro_acumulado.toFixed(2)}</p>
+                    <p className="text-xs text-green-600">
+                      R$ {stats.geral.lucro_acumulado.toFixed(2)}
+                    </p>
                   </div>
                   <div className="border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                     <p className="text-[8px] text-gray-500">PARTIDAS</p>
@@ -258,7 +290,9 @@ export default function Perfil() {
                   </div>
                   <div className="border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                     <p className="text-[8px] text-gray-500">SATISFAÇÃO</p>
-                    <p className="text-xs text-yellow-500">{stats.geral.media_satisfacao} / 10.0</p>
+                    <p className="text-xs text-yellow-500">
+                      {stats.geral.media_satisfacao} / 10.0
+                    </p>
                   </div>
                   <div className="border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                     <p className="text-[8px] text-gray-500">RECORDE</p>
@@ -267,9 +301,14 @@ export default function Perfil() {
                 </div>
 
                 <div className="w-full border-4 border-black bg-white p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                  <p className="mb-4 text-center text-[10px]">EVOLUÇÃO FINANCEIRA</p>
+                  <p className="mb-4 text-center text-[10px]">
+                    EVOLUÇÃO FINANCEIRA
+                  </p>
                   <div className="h-64">
-                    <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                    <Line
+                      data={chartData}
+                      options={{ maintainAspectRatio: false }}
+                    />
                   </div>
                 </div>
               </div>
