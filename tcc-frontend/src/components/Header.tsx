@@ -25,12 +25,12 @@ export default function Header() {
     <div className="fixed left-0 right-0 top-0 z-50 flex h-16 w-full items-center justify-between border-b-4 border-black bg-vibratingBlue px-4 font-pressStart shadow-[0px_4px_0px_rgba(0,0,0,1)] md:px-8">
       <div className="flex items-center gap-3 md:gap-4">
         <img
-          src="/vite.svg"
-          className="w-8 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:w-10"
+          src="/logo.png"
+          className="w-8 h-auto drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:w-10"
           alt="Logo"
         />
         <h1 className="text-sm text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-xl lg:text-2xl">
-          TCC - App
+          Tapiocaria
         </h1>
       </div>
 
