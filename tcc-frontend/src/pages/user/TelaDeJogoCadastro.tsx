@@ -300,13 +300,13 @@ export default function TelaDeJogoCadastro() {
       setSessao((prev) =>
         prev
           ? {
-              ...prev,
-              budget: r.budget,
-              gasto_hoje: r.gasto_hoje,
-              estoque: prev.estoque.map((i) =>
-                i.nome === nome ? { ...i, quantidade: r.quantidade } : i,
-              ),
-            }
+            ...prev,
+            budget: r.budget,
+            gasto_hoje: r.gasto_hoje,
+            estoque: prev.estoque.map((i) =>
+              i.nome === nome ? { ...i, quantidade: r.quantidade } : i,
+            ),
+          }
           : prev,
       );
       setGastoHoje(r.gasto_hoje);
@@ -322,13 +322,13 @@ export default function TelaDeJogoCadastro() {
       setSessao((prev) =>
         prev
           ? {
-              ...prev,
-              budget: r.budget,
-              gasto_hoje: r.gasto_hoje,
-              estoque: prev.estoque.map((i) =>
-                i.nome === nome ? { ...i, quantidade: r.quantidade } : i,
-              ),
-            }
+            ...prev,
+            budget: r.budget,
+            gasto_hoje: r.gasto_hoje,
+            estoque: prev.estoque.map((i) =>
+              i.nome === nome ? { ...i, quantidade: r.quantidade } : i,
+            ),
+          }
           : prev,
       );
       setGastoHoje(r.gasto_hoje);
@@ -381,9 +381,9 @@ export default function TelaDeJogoCadastro() {
   const estoqueVisivelNaTela = showSetupPopup
     ? (sessao?.estoque ?? [])
     : (sessao?.estoque ?? []).map((ing) => ({
-        ...ing,
-        quantidade: estoqueLocal[ing.nome] ?? ing.quantidade,
-      }));
+      ...ing,
+      quantidade: estoqueLocal[ing.nome] ?? ing.quantidade,
+    }));
 
   if (loading || !sessao) {
     return (
@@ -461,11 +461,10 @@ export default function TelaDeJogoCadastro() {
                     return (
                       <span
                         key={i.nome}
-                        className={`border-2 px-2 py-1 text-[8px] font-bold transition-colors ${
-                          critico
-                            ? 'border-black bg-crimsonRed text-white shadow-[2px_2px_0px_rgba(0,0,0,1)]'
-                            : 'border-black bg-white text-textBlack shadow-[2px_2px_0px_rgba(0,0,0,1)]'
-                        }`}
+                        className={`border-2 px-2 py-1 text-[8px] font-bold transition-colors ${critico
+                          ? 'border-black bg-crimsonRed text-white shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                          : 'border-black bg-white text-textBlack shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                          }`}
                       >
                         {i.nome.split(' ')[0]} ×{i.quantidade}
                       </span>
@@ -486,6 +485,12 @@ export default function TelaDeJogoCadastro() {
               <p className="mt-8 text-6xl font-bold text-vibratingBlue drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] md:text-8xl">
                 {clientesExibidos}
               </p>
+              {resultadoDia && (resultadoDia.clientes_atendidos === 0 && resultadoDia.clientes_perdidos_preco > 0) && (
+                <div className="animate-pulse border-4 border-black bg-crimsonRed px-4 py-2 text-center text-[10px] font-bold text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                  🚫 PREÇO ABUSIVO! <br />
+                  <span className="text-[8px]">NINGUÉM QUER COMPRAR</span>
+                </div>
+              )}
               <p className="text-[8px] font-bold text-textBlack md:text-[10px]">
                 de {resultadoDia?.clientes_atendidos ?? '?'} previstos hoje
               </p>
@@ -666,11 +671,10 @@ export default function TelaDeJogoCadastro() {
                             disabled={
                               (sessao.receita[ing.nome] ?? 0) >= ing.quantidade
                             }
-                            className={`h-10 w-10 border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none ${
-                              (sessao.receita[ing.nome] ?? 0) >= ing.quantidade
-                                ? 'cursor-not-allowed bg-gray-300 text-gray-500'
-                                : 'bg-lightGreen text-textBlack'
-                            }`}
+                            className={`h-10 w-10 border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1 active:shadow-none ${(sessao.receita[ing.nome] ?? 0) >= ing.quantidade
+                              ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                              : 'bg-lightGreen text-textBlack'
+                              }`}
                           >
                             +
                           </button>
@@ -822,7 +826,11 @@ export default function TelaDeJogoCadastro() {
             <h2 className="mb-8 inline-block self-center border-4 border-black bg-white px-6 py-2 text-sm font-bold uppercase text-vibratingBlue drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-base">
               BALANÇO — DIA {sessao.dia_atual}
             </h2>
-
+            {resultadoDia.lucro === 0 && resultadoDia.clientes_perdidos_preco > 0 && (
+              <div className="border-4 border-black bg-crimsonRed p-3 text-[10px] font-bold text-white shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                O preço de R$ {sessao.preco_tapioca.toFixed(2)} espantou todos os clientes!
+              </div>
+            )}
             <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
