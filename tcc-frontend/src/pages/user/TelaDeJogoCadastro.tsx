@@ -43,18 +43,15 @@ function labelDelta(delta: number): {
   cor: string;
 } {
   if (delta >= 4)
-    return {
-      emoji: '🌟',
-      texto: 'PERFEITO',
-      cor: 'bg-lightGreen text-textBlack',
-    };
-  if (delta >= 2)
+    return { emoji: '🌟', texto: 'PERFEITO', cor: 'bg-lightGreen text-textBlack' };
+  if (delta >= 1)
     return { emoji: '✅', texto: 'BOM', cor: 'bg-lightGreen text-textBlack' };
-  if (delta >= 0)
+  if (delta >= -1)
     return { emoji: '😐', texto: 'OK', cor: 'bg-goldenYellow text-textBlack' };
-  if (delta >= -2)
+  if (delta >= -4)
     return { emoji: '⚠️', texto: 'RUIM', cor: 'bg-crimsonRed text-white' };
-  return { emoji: '❌', texto: 'PÉSSIMO', cor: 'bg-crimsonRed text-white' };
+
+  return { emoji: '❌', texto: 'PÉSSIMO', cor: 'bg-textBlack text-white' };
 }
 
 const DURACAO_DIA = 30;
@@ -232,10 +229,17 @@ export default function TelaDeJogoCadastro() {
     try {
       const resultado = await processarDia(sessaoId);
       toast.dismiss(t);
-      resultadoRef.current = resultado;
-      setResultadoDia(resultado);
-      setSessao(resultado.sessao);
-      setGastoHoje(resultado.sessao.gasto_hoje);
+      const normalized: ResultadoDia = {
+        ...resultado,
+        delta_preco: Number((resultado as any).delta_preco ?? (resultado as any).deltaPreco ?? 0),
+        delta_receita: Number((resultado as any).delta_receita ?? (resultado as any).deltaReceita ?? 0),
+        satisfacao_delta: Number((resultado as any).satisfacao_delta ?? (resultado as any).satisfacaoDelta ?? 0),
+      } as ResultadoDia;
+
+      resultadoRef.current = normalized;
+      setResultadoDia(normalized);
+      setSessao(normalized.sessao);
+      setGastoHoje(normalized.sessao.gasto_hoje);
       const estoqueInicial: Record<string, number> = {};
       sessao.estoque.forEach((i) => {
         estoqueInicial[i.nome] = i.quantidade;
@@ -838,19 +842,20 @@ export default function TelaDeJogoCadastro() {
                     { label: 'PREÇO', delta: resultadoDia.delta_preco },
                     { label: 'RECEITA', delta: resultadoDia.delta_receita },
                   ].map(({ label, delta }) => {
-                    const { emoji, texto, cor } = labelDelta(delta);
+                    const isAbusivo = label === 'PREÇO' && resultadoDia.lucro === 0 && resultadoDia.clientes_perdidos_preco > 0;
+
+                    const numericDelta = Number(delta ?? 0);
+                    const { emoji, texto, cor } = isAbusivo
+                      ? { emoji: '💸', texto: 'ABUSIVO', cor: 'bg-textBlack text-white' }
+                      : labelDelta(numericDelta);
+
                     return (
-                      <div
-                        key={label}
-                        className={`flex flex-col items-center border-4 border-black p-3 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${cor}`}
-                      >
-                        <span className="text-[8px] font-bold uppercase tracking-tighter">
-                          {label}
-                        </span>
+                      <div key={label} className={`flex flex-col items-center border-4 border-black p-3 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${cor}`}>
+                        <span className="text-[8px] font-bold uppercase tracking-tighter">{label}</span>
                         <span className="my-1 text-2xl">{emoji}</span>
                         <span className="text-[10px] font-bold">{texto}</span>
                         <span className="text-[9px] opacity-70">
-                          {delta > 0 ? `+${delta}` : delta} pts
+                          {isAbusivo ? '---' : (numericDelta > 0 ? `+${numericDelta}` : numericDelta)} pts
                         </span>
                       </div>
                     );
