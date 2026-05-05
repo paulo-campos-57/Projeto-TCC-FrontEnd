@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 export default function Tutorial() {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ export default function Tutorial() {
           VOLTAR
         </button>
       </div>
+      <Footer />
     </div>
   );
 }

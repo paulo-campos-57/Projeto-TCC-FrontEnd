@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-
 import { Eye, EyeOff } from 'lucide-react';
 
 import Footer from '../../components/Footer';
@@ -11,7 +10,6 @@ import NavItem from '../../components/NavItem';
 export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -19,7 +17,6 @@ export default function Index() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email || !password) {
       toast.error('Por favor, preencha todos os campos');
       return;
@@ -30,63 +27,41 @@ export default function Index() {
     try {
       const response = await fetch('http://127.0.0.1:5000/user/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          senha: password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, senha: password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Token recebido:', data.token);
-
         toast.success(`Bem-vindo, ${data.User?.nome}!`, { id: loadingToast });
-
         localStorage.setItem('token', JSON.stringify(data.token));
         localStorage.setItem('user', JSON.stringify(data.User));
-
         setTimeout(() => navigate('/UsuarioHome'), 2000);
       } else {
         toast.error(data.error || 'Falha no login', { id: loadingToast });
       }
     } catch (err) {
-      console.error('Erro de rede:', err);
       toast.error('Servidor offline ou erro de conexão', { id: loadingToast });
     }
   };
 
-  const handleGuestPlay = () => {
-    setShowConfirmPopup(true);
-  };
-
-  const confirmGuestPlay = () => {
-    setShowConfirmPopup(false);
-    navigate('/JogoConvidado');
-  };
-
-  const cancelGuestPlay = () => {
-    setShowConfirmPopup(false);
-  };
-
   return (
     <>
-      <div className="flex h-screen w-screen flex-col bg-primaryWhite font-pressStart">
+      <div className="flex min-h-screen w-full flex-col bg-primaryWhite font-pressStart">
         <Toaster position="top-right" />
         <Header />
-        <div className="flex flex-1">
-          {/* LADO ESQUERDO - LOGIN */}
-          <div className="flex h-full w-1/2 flex-col items-center justify-center bg-lightGreen p-8 font-bold text-textBlack">
-            <h1 className="mb-6 text-center text-2xl text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-3xl lg:text-4xl">
+
+        <div className="flex flex-1 flex-col pt-16 md:flex-row">
+
+          <div className="flex w-full flex-col items-center justify-center bg-lightGreen p-6 py-12 font-bold text-textBlack md:w-1/2 md:p-8">
+            <h1 className="mb-6 text-center text-xl text-primaryWhite drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:text-3xl lg:text-4xl">
               Fazer login
             </h1>
 
             <form
               onSubmit={handleLogin}
-              className="flex w-5/6 max-w-md flex-col gap-4 border-4 border-black bg-primaryWhite p-6 shadow-[6px_6px_0px_rgba(0,0,0,1)]"
+              className="flex w-full max-w-md flex-col gap-4 border-4 border-black bg-primaryWhite p-6 shadow-[6px_6px_0px_rgba(0,0,0,1)]"
             >
               <input
                 className="w-full border-4 border-black bg-primaryWhite p-3 text-[10px] text-textBlack placeholder-gray-500 transition duration-200 focus:bg-gray-100 focus:outline-none md:text-xs"
@@ -109,21 +84,22 @@ export default function Index() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 flex items-center text-black transition duration-200 hover:text-vibratingBlue focus:outline-none"
+                  className="absolute inset-y-0 right-3 flex items-center text-black hover:text-vibratingBlue focus:outline-none"
                 >
-                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
               <button
                 type="submit"
-                className="mt-4 border-4 border-black bg-vibratingBlue px-6 py-3 text-xs text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-blue-700 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-sm"
+                className="mt-4 border-4 border-black bg-vibratingBlue px-6 py-3 text-[10px] text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-blue-700 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-xs"
               >
                 ENTRAR
               </button>
 
-              <div className="mt-4 text-center text-[9px] leading-relaxed text-gray-700 md:text-[10px]">
+              <div className="mt-4 text-center text-[8px] leading-relaxed text-gray-700 md:text-[10px]">
                 Ainda não tem uma conta?
+                <br className="md:hidden" />
                 <span
                   className="ml-2 cursor-pointer font-bold text-crimsonRed hover:underline"
                   onClick={() => navigate('/Cadastro')}
@@ -134,11 +110,10 @@ export default function Index() {
             </form>
           </div>
 
-          {/* LADO DIREITO - JOGAR COMO CONVIDADO */}
-          <div className="flex h-full w-1/2 flex-col items-center justify-center border-l-4 border-black bg-primaryWhite p-8 font-bold text-textBlack">
+          <div className="flex w-full flex-col items-center justify-center border-t-4 border-black bg-primaryWhite p-8 py-16 font-bold text-textBlack md:w-1/2 md:border-l-4 md:border-t-0">
             <h1
-              className="cursor-pointer border-4 border-black bg-white p-6 text-center text-lg shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-2xl lg:text-3xl"
-              onClick={handleGuestPlay}
+              className="w-full max-w-xs cursor-pointer border-4 border-black bg-white p-6 text-center text-xs shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:max-w-md md:text-xl lg:text-2xl"
+              onClick={() => setShowConfirmPopup(true)}
             >
               <NavItem>Jogar sem conta</NavItem>
             </h1>
@@ -147,27 +122,25 @@ export default function Index() {
         <Footer />
       </div>
 
-      {/* POPUP DE CONFIRMAÇÃO */}
       {showConfirmPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-          <div className="w-[90%] max-w-md border-4 border-black bg-primaryWhite p-8 text-center font-pressStart shadow-[8px_8px_0px_rgba(0,0,0,1)]">
-            <h2 className="mb-4 text-xl text-textBlack drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)] md:text-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-sm border-4 border-black bg-primaryWhite p-6 text-center font-pressStart shadow-[8px_8px_0px_rgba(0,0,0,1)] md:p-8">
+            <h2 className="mb-4 text-sm text-textBlack md:text-xl">
               Tem certeza? ⚠️
             </h2>
-            <p className="mb-8 text-[10px] leading-relaxed text-gray-700 md:text-xs">
-              Ao jogar sem conta, seu progresso não será salvo e você não terá
-              estatísticas.
+            <p className="mb-8 text-[8px] leading-relaxed text-gray-700 md:text-[10px]">
+              Ao jogar sem conta, seu progresso não será salvo e você não terá estatísticas.
             </p>
-            <div className="flex flex-col justify-center gap-4 md:flex-row">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <button
-                onClick={confirmGuestPlay}
-                className="flex-1 border-4 border-black bg-vibratingBlue px-4 py-3 text-xs text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-blue-700 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-sm"
+                onClick={() => navigate('/JogoConvidado')}
+                className="flex-1 border-4 border-black bg-vibratingBlue py-3 text-[10px] text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
               >
                 SIM
               </button>
               <button
-                onClick={cancelGuestPlay}
-                className="flex-1 border-4 border-black bg-crimsonRed px-4 py-3 text-xs text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-red-700 active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-sm"
+                onClick={() => setShowConfirmPopup(false)}
+                className="flex-1 border-4 border-black bg-crimsonRed py-3 text-[10px] text-primaryWhite shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
               >
                 CANCELAR
               </button>
