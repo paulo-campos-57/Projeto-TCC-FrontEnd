@@ -21,18 +21,63 @@ The full project documentation can be found at this <a href="https://docs.google
 
 ```
 tcc-frontend/
-├── public/
+├── public/                        # Static public files (served as-is)
 └── src/
-    ├── assets/          # Static assets (images, icons, etc.)
-    ├── components/      # Reusable UI components
-    ├── data/            # Static data and constants
-    ├── pages/           # Application pages / routes
-    ├── services/        # API calls and external services
-    ├── types/           # TypeScript type definitions
-    ├── App.tsx          # Root component and route definitions
-    ├── index.css        # Global styles
-    └── main.tsx         # Application entry point
+    ├── assets/                    # Static assets (images, icons, fonts, etc.)
+    │
+    ├── components/                # Reusable UI components
+    │   └── ProtectedRoute.tsx     # Auth guard — redirects unauthenticated users
+    │
+    ├── data/                      # Static data and application constants
+    │   └── ingredients.ts         # Ingredient types (TipoIngrediente) and prices (INGREDIENTES_PRECOS)
+    │
+    ├── pages/                     # Application pages organized by access level
+    │   ├── guest/                 # 🔓 Public pages — accessible without authentication
+    │   └── user/                  # 🔒 Protected pages — require user authentication
+    │
+    ├── services/                  # API integration layer (calls to the backend)
+    │
+    ├── types/                     # Global TypeScript type definitions
+    │
+    ├── App.tsx                    # Root component — route definitions and layout
+    ├── index.css                  # Global styles
+    └── main.tsx                   # Application entry point
 ```
+
+### Pages & Routing
+
+The `pages/` directory is split by access level:
+
+| Folder | Access | Description |
+|---|---|---|
+| `pages/guest/` | 🔓 Public | Pages accessible without login (e.g. landing, login, register) |
+| `pages/user/` | 🔒 Protected | Pages that require authentication, guarded by `ProtectedRoute` |
+
+Authentication is enforced on the frontend via the `ProtectedRoute.tsx` component, which integrates with the backend session/token system to redirect unauthenticated users away from protected routes.
+
+### Data Layer
+
+The `data/` directory holds static constants used across the application. Currently it defines the available ingredient types and their respective prices:
+
+```ts
+// data/ingredients.ts (example)
+export type TipoIngrediente =
+  | 'Goma de Tapioca'
+  | 'Queijo Coalho'
+  | 'Coco Ralado'
+  | 'Leite Condensado';
+
+export const INGREDIENTES_PRECOS: Record<TipoIngrediente, number> = {
+  'Goma de Tapioca': 10,
+  'Queijo Coalho': 15,
+  'Coco Ralado': 8,
+  'Leite Condensado': 12,
+};
+```
+
+### Services Layer
+
+The `services/` directory contains all API call logic — each file maps to a specific backend resource or domain (e.g. auth, orders, products). This keeps HTTP logic out of components and pages.
 
 ---
 
@@ -124,18 +169,63 @@ A documentação completa do projeto pode ser encontrada neste <a href="https://
 
 ```
 tcc-frontend/
-├── public/
+├── public/                        # Arquivos públicos estáticos (servidos diretamente)
 └── src/
-    ├── assets/          # Arquivos estáticos (imagens, ícones, etc.)
-    ├── components/      # Componentes reutilizáveis de UI
-    ├── data/            # Dados estáticos e constantes
-    ├── pages/           # Páginas da aplicação / rotas
-    ├── services/        # Chamadas de API e serviços externos
-    ├── types/           # Definições de tipos TypeScript
-    ├── App.tsx          # Componente raiz e definição de rotas
-    ├── index.css        # Estilos globais
-    └── main.tsx         # Ponto de entrada da aplicação
+    ├── assets/                    # Arquivos estáticos (imagens, ícones, fontes, etc.)
+    │
+    ├── components/                # Componentes reutilizáveis de UI
+    │   └── ProtectedRoute.tsx     # Guard de autenticação — redireciona usuários não autenticados
+    │
+    ├── data/                      # Dados estáticos e constantes da aplicação
+    │   └── ingredients.ts         # Tipos de ingredientes (TipoIngrediente) e preços (INGREDIENTES_PRECOS)
+    │
+    ├── pages/                     # Páginas da aplicação organizadas por nível de acesso
+    │   ├── guest/                 # 🔓 Páginas públicas — acessíveis sem autenticação
+    │   └── user/                  # 🔒 Páginas protegidas — exigem autenticação do usuário
+    │
+    ├── services/                  # Camada de integração com a API (chamadas ao backend)
+    │
+    ├── types/                     # Definições globais de tipos TypeScript
+    │
+    ├── App.tsx                    # Componente raiz — definição de rotas e layout
+    ├── index.css                  # Estilos globais
+    └── main.tsx                   # Ponto de entrada da aplicação
 ```
+
+### Páginas e Roteamento
+
+O diretório `pages/` é dividido por nível de acesso:
+
+| Pasta | Acesso | Descrição |
+|---|---|---|
+| `pages/guest/` | 🔓 Público | Páginas acessíveis sem login (ex: landing page, login, cadastro) |
+| `pages/user/` | 🔒 Protegido | Páginas que exigem autenticação, protegidas pelo `ProtectedRoute` |
+
+A autenticação é tratada no front-end pelo componente `ProtectedRoute.tsx`, que se integra com o sistema de sessão/token do backend para redirecionar usuários não autenticados que tentam acessar rotas protegidas.
+
+### Camada de Dados
+
+O diretório `data/` contém constantes estáticas utilizadas em toda a aplicação. Atualmente define os tipos de ingredientes disponíveis e seus respectivos preços:
+
+```ts
+// data/ingredients.ts (exemplo)
+export type TipoIngrediente =
+  | 'Goma de Tapioca'
+  | 'Queijo Coalho'
+  | 'Coco Ralado'
+  | 'Leite Condensado';
+
+export const INGREDIENTES_PRECOS: Record<TipoIngrediente, number> = {
+  'Goma de Tapioca': 10,
+  'Queijo Coalho': 15,
+  'Coco Ralado': 8,
+  'Leite Condensado': 12,
+};
+```
+
+### Camada de Serviços
+
+O diretório `services/` contém toda a lógica de chamadas à API — cada arquivo mapeia um recurso ou domínio específico do backend (ex: autenticação, pedidos, produtos). Isso mantém a lógica HTTP fora dos componentes e páginas.
 
 ---
 
