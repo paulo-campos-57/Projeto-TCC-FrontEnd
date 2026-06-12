@@ -70,12 +70,6 @@ export default function JogoCadastro() {
               >
                 Jogo de 1 mês
               </button>
-              <button
-                onClick={() => handleGameMode('livre')}
-                className="w-full border-4 border-black bg-goldenYellow py-3 text-[10px] text-textBlack shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-[0px_0px_0px_rgba(0,0,0,1)] md:text-xs"
-              >
-                Jogo livre
-              </button>
             </div>
 
             <div className="my-2 w-full border-b-4 border-black opacity-20 md:w-4/5"></div>
