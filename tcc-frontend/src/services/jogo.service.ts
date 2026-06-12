@@ -1,4 +1,4 @@
-const BASE = 'http://127.0.0.1:5000/jogo';
+const BASE = 'https://tapiocaria-backend.onrender.com/jogo';
 
 export interface ItemCatalogo {
   nome: string;

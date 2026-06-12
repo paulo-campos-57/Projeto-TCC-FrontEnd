@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:5000/resultados';
+const BASE_URL = 'https://tapiocaria-backend.onrender.com/resultados';
 
 export interface StatsData {
   geral: {
