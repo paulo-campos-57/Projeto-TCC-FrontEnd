@@ -9,7 +9,7 @@ export default function JogoCadastro() {
   const handleGameMode = async (tempo: string) => {
     try {
       const response = await fetch(
-        'http://https://tapiocaria-backend.onrender.com/bairro/iniciar_sessao',
+        'https://tapiocaria-backend.onrender.com/bairro/iniciar_sessao',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

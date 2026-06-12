@@ -66,7 +66,7 @@ export default function Perfil() {
       }
 
       try {
-        const userRes = await fetch('http://https://tapiocaria-backend.onrender.com/user/me', {
+        const userRes = await fetch('https://tapiocaria-backend.onrender.com/user/me', {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -78,7 +78,7 @@ export default function Perfil() {
           setEditEmail(userData.User.email);
 
           const statsRes = await fetch(
-            `http://https://tapiocaria-backend.onrender.com/resultados/${userData.User.id}/estatisticas`,
+            `https://tapiocaria-backend.onrender.com/resultados/${userData.User.id}/estatisticas`,
             {
               method: 'GET',
               headers: { Authorization: `Bearer ${token}` },
@@ -115,7 +115,7 @@ export default function Perfil() {
     const token = localStorage.getItem('token')?.replace(/"/g, '');
     const loadingToast = toast.loading('Salvando...');
     try {
-      const response = await fetch('http://https://tapiocaria-backend.onrender.com/user/update_me', {
+      const response = await fetch('https://tapiocaria-backend.onrender.com/user/update_me', {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome: editNome, email: editEmail }),
@@ -139,7 +139,7 @@ export default function Perfil() {
     const token = localStorage.getItem('token')?.replace(/"/g, '');
     const loadingToast = toast.loading('Excluindo...');
     try {
-      const response = await fetch(`http://https://tapiocaria-backend.onrender.com/user/delete`, {
+      const response = await fetch(`https://tapiocaria-backend.onrender.com/user/delete`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

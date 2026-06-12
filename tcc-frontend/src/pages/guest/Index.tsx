@@ -25,7 +25,7 @@ export default function Index() {
     const loadingToast = toast.loading('Autenticando...');
 
     try {
-      const response = await fetch('http://https://tapiocaria-backend.onrender.com/user/login', {
+      const response = await fetch('https://tapiocaria-backend.onrender.com/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, senha: password }),
