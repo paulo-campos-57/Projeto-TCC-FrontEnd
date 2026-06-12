@@ -59,7 +59,7 @@ export default function PaginaJogoCadastro() {
   useEffect(() => {
     const fetchBairros = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/bairro/lista');
+        const response = await fetch('http://https://tapiocaria-backend.onrender.com/bairro/lista');
         const data = await response.json();
 
         if (response.ok) {
@@ -88,7 +88,7 @@ export default function PaginaJogoCadastro() {
 
     try {
       const response = await fetch(
-        'http://127.0.0.1:5000/bairro/iniciar_jogo',
+        'http://https://tapiocaria-backend.onrender.com/bairro/iniciar_jogo',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
